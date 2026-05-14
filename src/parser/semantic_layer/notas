@@ -1,0 +1,51 @@
+2. Semantic layer (VALIDACIÓN + NORMALIZACIÓN)
+
+Aquí es donde ocurre el “trabajo real del parser del ejercicio”.
+
+Responsabilidad:
+
+validar enums (zone type)
+validar int ranges
+convertir metadata → dict estructurado
+detectar duplicados
+validar start/end únicos
+construir modelo final
+
+Output ideal:
+
+@dataclass
+class Zone:
+    name: str
+    x: int
+    y: int
+    type: ZoneType
+    color: str | None
+    max_drones: int
+@dataclass
+class Connection:
+    a: str
+    b: str
+    max_capacity: int
+    cost: int  # derivado del zone type
+
+👉 Aquí SÍ haces parsing de [zone=priority color=red]
+
+3. Graph layer (modelo del mundo)
+
+Transformas todo a un grafo:
+
+adjacency list
+edges con capacity + cost
+nodes con capacity + type
+graph: dict[str, list[Edge]]
+4. Simulation layer (CORE del ejercicio)
+
+Aquí está el “juego”.
+
+Responsabilidad:
+
+turn-based simulation
+movement scheduling
+capacity checking
+conflict resolution
+tracking drones in flight

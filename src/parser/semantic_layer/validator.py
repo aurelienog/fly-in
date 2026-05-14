@@ -1,0 +1,1 @@
+validación + enums + rules
