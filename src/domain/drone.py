@@ -1,3 +1,6 @@
+from dataclasses import dataclass
+
+
+@dataclass
 class Drone:
-    def __init__(self, name) -> None:
-        self.name = name
+    name: str

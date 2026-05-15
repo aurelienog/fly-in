@@ -4,3 +4,7 @@ class ParseError(Exception):
 
 class InvalidSyntaxError(ParseError):
     pass
+
+
+class SemanticError(ParseError):
+    pass

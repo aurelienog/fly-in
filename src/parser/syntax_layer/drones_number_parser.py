@@ -1,11 +1,13 @@
 from ...errors import InvalidSyntaxError
 
 
-def parse_nb_drones(content: str) -> None:
-    try:
-        value = int(content.strip())
-    except ValueError:
-        raise InvalidSyntaxError("nb_drone must be an integer")
+def parse_nb_drones(content: str) -> int:
+    value = content.strip()
 
-    if value < 0:
-        raise InvalidSyntaxError("nb_drone must be >= 0")
+    if not value:
+        raise InvalidSyntaxError("Missing drone count")
+
+    try:
+        return int(value)
+    except ValueError:
+        raise InvalidSyntaxError("Drone count must be an integer")

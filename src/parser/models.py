@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 @dataclass
 class RawHub:
+    hub_type: str
     name: str
     x: str
     y: str
@@ -17,7 +18,7 @@ class RawConnection:
 
 
 @dataclass
-class RawNetworkInput:
+class RawNetwork:
     nb_drones: int
     hubs: list[RawHub]
     connections: list[RawConnection]

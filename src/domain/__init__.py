@@ -1,8 +1,8 @@
 from .connection import Connection
-from .graph import Graph
+from .network import Network
 from .hub import Hub, HubType
 from .drone import Drone
 from .simulation import Simulation
 
 
-__all__ = ["Connection", "Graph", "Hub", "HubType", "Drone", "Simulation"]
+__all__ = ["Connection", "Network", "Hub", "HubType", "Drone", "Simulation"]
