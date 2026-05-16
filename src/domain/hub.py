@@ -1,5 +1,6 @@
 from enum import Enum
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from . import Connection
 
 
 class HubType(Enum):
@@ -16,3 +17,4 @@ class Hub:
     max_drones: int = 1
     hub_type: HubType = HubType.NORMAL
     color: str = "default"
+    connections: list[Connection] = field(default_factory=list)

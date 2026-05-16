@@ -9,10 +9,10 @@ def parse_network(tokens: list[tuple[int, str, str]]) -> RawNetwork:
     connections: list = []
     nb_drones: int = 0
 
-    valid_hubs = {"hub", "start_hub", "end_hub"}
+    hub_keywords = {"hub", "start_hub", "end_hub"}
 
     for line, keyword, content in tokens:
-        if keyword in valid_hubs:
+        if keyword in hub_keywords:
             hubs.append(parse_hub(content, keyword))
 
         elif keyword == "connection":
