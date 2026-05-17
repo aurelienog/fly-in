@@ -75,10 +75,7 @@ def validate_network(raw: RawNetwork) -> None:
 # ¿capacidades son coherentes?
 
 
-
 # validación + enums + rules
-
-
 
 # | Etapa      | Responsabilidad          |
 # | ---------- | ------------------------ |

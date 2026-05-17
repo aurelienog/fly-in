@@ -7,14 +7,17 @@ class RawHub:
     name: str
     x: str
     y: str
-    metadata: str | None = None
+
+    zone: str = "normal"
+    color: str | None = None
+    max_drones: int = 1
 
 
 @dataclass
 class RawConnection:
     a: str
     b: str
-    metadata: str | None = None
+    max_link_capacity: int = 1
 
 
 @dataclass
