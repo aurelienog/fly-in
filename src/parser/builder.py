@@ -1,29 +1,46 @@
 from . import RawNetwork
 from ..domain import Network, Hub, Connection
 from .builders import build_hub, build_connection
-from ..errors import DomainError
 from .semantic_layer import validate_network
+
+
+def build_hub_map(raw: RawNetwork) -> tuple[dict[str, Hub], Hub, Hub]:
+    start_hub: Hub | None = None
+    end_hub: Hub | None = None
+    hub_map: dict[str, Hub] = {}
+
+    for h in raw.hubs:
+
+        hub = build_hub(h)
+        hub_map[h.name] = hub
+
+        if h.hub_type == "start_hub":
+            start_hub = hub
+
+        elif h.hub_type == "end_hub":
+            end_hub = hub
+
+    return hub_map, start_hub, end_hub
 
 
 def build_network(raw: RawNetwork) -> Network:
 
     validate_network(raw)
 
-    hub_map = build_hubs(raw.hubs)
+    hub_map, start_hub, end_hub = build_hub_map(raw)
 
-    connections = build_connections(
-        raw.connections,
-        hub_map,
-    )
+    assert start_hub is not None
+    assert end_hub is not None
 
-    start_hub = find_start_hub(hub_map)
-    end_hub = find_end_hub(hub_map)
+    connections: list[Connection] = [
+        build_connection(raw_connection, hub_map)
+        for raw_connection in raw.connections]
 
     return Network(
         start_hub=start_hub,
         end_hub=end_hub,
         hubs=list(hub_map.values()),
-        connections=connections,
+        connections=connections
     )
 
 # def build_network(raw: RawNetwork) -> Network:

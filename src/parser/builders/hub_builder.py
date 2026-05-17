@@ -1,13 +1,20 @@
 from ..models import RawHub
-from ...domain import Hub
+from ...domain import Hub, HubRole, ZoneType
 
 
-def build_hub(raw_hub: RawHub) -> Hub:
+def build_hub(raw: RawHub) -> Hub:
     return Hub(
-        name=raw_hub.name,
-        x=raw_hub.x,
-        y=raw_hub.y,
-        zone=raw_hub.zone,
-        color=raw_hub.color,
-        max_drones=raw_hub.max_drones,
+        name=raw.name,
+
+        position=(
+            raw.x,
+            raw.y,
+        ),
+        role=HubRole(raw.hub_type),
+
+        zone=ZoneType(raw.zone),
+
+        max_drones=raw.max_drones,
+
+        color=raw.color or "default"
     )

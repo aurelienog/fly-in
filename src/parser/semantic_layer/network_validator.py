@@ -42,6 +42,9 @@ def validate_connections(
     raw: RawNetwork,
 ) -> None:
 
+    existing_hubs = {hub.name for hub in raw.hubs}
+    seen_connections: set[frozenset[str]] = set()
+
     for connection in raw.connections:
         if connection.a not in existing_hubs:
             raise SemanticError(
@@ -52,6 +55,18 @@ def validate_connections(
             raise SemanticError(
                 f"Unknown hub in connection: {connection.b}"
             )
+
+        key = frozenset({
+            connection.a,
+            connection.b,
+        })
+
+        if key in seen_connections:
+            raise SemanticError(
+                "duplicate connection"
+            )
+
+        seen_connections.add(key)
 
 
 def validate_network(raw: RawNetwork) -> None:

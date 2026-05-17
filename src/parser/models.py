@@ -5,8 +5,8 @@ from dataclasses import dataclass
 class RawHub:
     hub_type: str
     name: str
-    x: str
-    y: str
+    x: int
+    y: int
 
     zone: str = "normal"
     color: str | None = None
