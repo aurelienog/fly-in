@@ -1,5 +1,17 @@
-from .. import RawNetwork, RawHub
+from ..models import RawNetwork, RawHub
 from ...errors import SemanticError
+from ...domain import HubRole
+from .metadata_validator import (validate_hub_metadata, 
+                                 validate_connection_metadata)
+
+
+def validate_hub_role(raw_hub: RawHub) -> None:
+
+    try:
+        HubRole(raw_hub.hub_type)
+
+    except ValueError as exc:
+        raise SemanticError(f"invalid hub role: {raw_hub.hub_type}") from exc
 
 
 def validate_unique_hubs(
@@ -24,11 +36,12 @@ def validate_start_end(
     end_count = 0
 
     for hub in hubs:
+        role = HubRole(hub.hub_type)
 
-        if hub.hub_type == "start_hub":
+        if role is HubRole.START:
             start_count += 1
 
-        elif hub.hub_type == "end_hub":
+        elif role is HubRole.END:
             end_count += 1
 
     if start_count != 1:
@@ -77,6 +90,12 @@ def validate_network(raw: RawNetwork) -> None:
     validate_unique_hubs(raw.hubs)
     validate_start_end(raw.hubs)
     validate_connections(raw)
+
+    for raw_hub in raw.hubs:
+        validate_hub_metadata(raw_hub)
+
+    for raw_connection in raw.connections:
+        validate_connection_metadata(raw_connection)
 
 
 # Semántica es cuando preguntas:

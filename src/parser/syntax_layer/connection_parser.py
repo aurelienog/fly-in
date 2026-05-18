@@ -1,16 +1,15 @@
 from ...errors import InvalidSyntaxError
 from .. import RawConnection
-from ...utils import extract_metadata
-from . import parse_metadata
-
-ALLOWED_CONNECTION_METADATA = {
-    "max_link_capacity",
-}
+from .metadata_parser import parse_metadata, extract_metadata
 
 
 def parse_connection(
     content: str,
 ) -> RawConnection:
+
+    ALLOWED_CONNECTION_METADATA = {
+        "max_link_capacity",
+    }
 
     line, metadata = extract_metadata(content)
 

@@ -6,5 +6,5 @@ from .simulation import Simulation
 
 
 __all__ = ["Connection", "Network",
-           "Hub", "HubType", "HubRole", "ZoneType",
+           "Hub", "HubRole", "ZoneType",
            "Drone", "Simulation"]

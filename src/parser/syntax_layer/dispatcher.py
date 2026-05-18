@@ -1,12 +1,14 @@
-from .syntax_layer import parse_nb_drones, parse_connection, parse_hub
-from ..errors import ParseError
-from .models import RawNetwork
+from .drones_number_parser import parse_nb_drones
+from .connection_parser import parse_connection
+from .hub_parser import parse_hub
+from ...errors import ParseError
+from ..models import RawNetwork, RawHub, RawConnection
 
 
 def parse_network(tokens: list[tuple[int, str, str]]) -> RawNetwork:
 
-    hubs: list = []
-    connections: list = []
+    hubs: list[RawHub] = []
+    connections: list[RawConnection] = []
     nb_drones: int = 0
 
     hub_keywords = {"hub", "start_hub", "end_hub"}

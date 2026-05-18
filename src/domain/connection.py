@@ -1,5 +1,10 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 from dataclasses import dataclass
-from . import Hub
+
+if TYPE_CHECKING:
+    from .hub import Hub
 
 
 @dataclass

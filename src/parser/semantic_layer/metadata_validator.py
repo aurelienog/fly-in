@@ -1,20 +1,17 @@
 from ...errors import SemanticError
 from .. import RawHub, RawConnection
-from ...domain import ZoneType, HubRole
+from ...domain import ZoneType
 
 
 def validate_hub_metadata(raw_hub: RawHub) -> None:
     try:
         ZoneType(raw_hub.zone)
-        HubRole(raw_hub.hub_type)
 
-    except ValueError as error:
-        raise SemanticError(error)
+    except ValueError as exc:
+        raise SemanticError(f"invalid zone type: {raw_hub.zone}") from exc
 
     if raw_hub.max_drones <= 0:
-        raise SemanticError(
-            "max_drones must be positive"
-        )
+        raise SemanticError("max_drones must be positive")
 
 
 def validate_connection_metadata(

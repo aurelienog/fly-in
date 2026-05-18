@@ -1,7 +1,6 @@
 from ...errors import InvalidSyntaxError
 from ..models import RawHub
-from ...utils import extract_metadata
-from . import parse_metadata
+from .metadata_parser import parse_metadata, extract_metadata
 
 
 ALLOWED_HUB_METADATA = {

@@ -1,10 +1,11 @@
-from . import RawNetwork
-from ..domain import Network, Hub, Connection
-from .builders import build_hub, build_connection
-from .semantic_layer import validate_network
+from .. import RawNetwork
+from ...domain import Network, Hub, Connection
+from .hub_builder import build_hub
+from .connection_builder import build_connection
+from ..semantic_layer import validate_network
 
 
-def build_hub_map(raw: RawNetwork) -> tuple[dict[str, Hub], Hub, Hub]:
+def build_hub_map(raw: RawNetwork) -> tuple[dict[str, Hub], Hub | None, Hub | None]:
     start_hub: Hub | None = None
     end_hub: Hub | None = None
     hub_map: dict[str, Hub] = {}
