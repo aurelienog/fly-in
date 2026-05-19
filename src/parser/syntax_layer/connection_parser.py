@@ -1,10 +1,11 @@
 from ...errors import InvalidSyntaxError
-from .. import RawConnection
+from ..models import RawConnection
 from .metadata_parser import parse_metadata, extract_metadata
 
 
 def parse_connection(
     content: str,
+    line_doc: int
 ) -> RawConnection:
 
     ALLOWED_CONNECTION_METADATA = {
@@ -19,12 +20,12 @@ def parse_connection(
 
     if unknown:
         raise InvalidSyntaxError(
-            f"unknown metadata keys: {unknown}"
+            f"line {line_doc}: unknown metadata keys: {unknown}"
         )
 
     if "-" not in line:
         raise InvalidSyntaxError(
-            "connection must contain '-'"
+            f"line {line_doc}:connection must contain '-'"
         )
 
     left, right = line.split("-", 1)
@@ -34,13 +35,16 @@ def parse_connection(
 
     if not a:
         raise InvalidSyntaxError(
-            "invalid hub a"
+            f"line {line_doc}: invalid hub a"
         )
 
     if not b:
         raise InvalidSyntaxError(
-            "invalid hub b"
+            f"line {line_doc}: invalid hub b"
         )
+
+    if "-" in a or "-" in b:
+        raise InvalidSyntaxError(f"line {line_doc}: hub names cannot contain '-'")
 
     try:
 
@@ -54,10 +58,11 @@ def parse_connection(
     except ValueError:
 
         raise InvalidSyntaxError(
-            "max_link_capacity must be integer"
+            f"line {line_doc}: max_link_capacity must be integer"
         )
 
     return RawConnection(
+        line=line_doc,
         a=a,
         b=b,
         max_link_capacity=max_link_capacity,

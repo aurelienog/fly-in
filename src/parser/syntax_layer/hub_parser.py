@@ -13,6 +13,7 @@ ALLOWED_HUB_METADATA = {
 def parse_hub(
     content: str,
     hub_type: str,
+    line_doc: int
 ) -> RawHub:
 
     line, metadata = extract_metadata(content)
@@ -22,17 +23,20 @@ def parse_hub(
     unknown = set(meta) - ALLOWED_HUB_METADATA
     if unknown:
         raise InvalidSyntaxError(
-            f"unknown metadata keys: {unknown}"
+            f"line {line_doc} unknown metadata keys: {unknown}"
         )
 
     parts = line.split()
 
     if len(parts) != 3:
         raise InvalidSyntaxError(
-            "invalid hub syntax"
+            f"line {line_doc}: invalid hub syntax"
         )
 
     name, x, y = parts
+
+    if "-" in name:
+        raise InvalidSyntaxError(f"line {line_doc}: hub names cannot contain '-'")
 
     try:
         x_int = int(x)
@@ -44,10 +48,11 @@ def parse_hub(
 
     except ValueError:
         raise InvalidSyntaxError(
-            "x, y and max_drones must be integers"
+            f"line {line_doc}: x, y and max_drones must be integers"
         )
 
     return RawHub(
+        line=line_doc,
         hub_type=hub_type,
         name=name,
         x=x_int,

@@ -16,5 +16,5 @@ def build_hub(raw: RawHub) -> Hub:
 
         max_drones=raw.max_drones,
 
-        color=raw.color or "default"
+        color=raw.color
     )

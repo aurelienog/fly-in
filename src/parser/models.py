@@ -3,6 +3,9 @@ from dataclasses import dataclass
 
 @dataclass
 class RawHub:
+
+    line: int
+
     hub_type: str
     name: str
     x: int
@@ -15,6 +18,9 @@ class RawHub:
 
 @dataclass
 class RawConnection:
+
+    line: int
+
     a: str
     b: str
     max_link_capacity: int = 1
