@@ -1,4 +1,4 @@
-from ...parser import tokenize_lines
+from ...parser.lexer import tokenize_lines
 from ...errors import ParseError
 from textwrap import dedent
 import pytest
