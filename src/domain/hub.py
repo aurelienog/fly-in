@@ -28,7 +28,7 @@ class Hub:
     role: HubRole
     zone: ZoneType = ZoneType.NORMAL
     max_drones: int = 1
-    color: str = "default"
+    color: str | None = None
     connections: list[Connection] = field(default_factory=list)
 
     @property

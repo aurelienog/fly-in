@@ -1,3 +1,3 @@
-from .file_loader import read_file
+from .file_loader import load_network
 
-__all__ = ["read_file"]
+__all__ = ["load_network"]
