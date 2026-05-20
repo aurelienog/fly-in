@@ -3,6 +3,13 @@ from ...domain import Hub, HubRole, ZoneType
 
 
 def build_hub(raw: RawHub) -> Hub:
+    if raw.hub_type == HubRole.START:
+        hub_role = HubRole.START
+    elif raw.hub_type == HubRole.END:
+        hub_role = HubRole.END
+    else:
+        hub_role = HubRole.HUB
+
     return Hub(
         name=raw.name,
 
@@ -10,7 +17,7 @@ def build_hub(raw: RawHub) -> Hub:
             raw.x,
             raw.y,
         ),
-        role=HubRole(raw.hub_type),
+        role=hub_role,
 
         zone=ZoneType(raw.zone),
 

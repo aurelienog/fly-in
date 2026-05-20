@@ -1,9 +1,10 @@
 from ..domain import Network
 from ..parser import parse_network
+from pathlib import Path
 
 
-def load_network(path: str) -> Network:
+def load_network(path: Path) -> Network:
 
-    with open(path, "r", encoding="utf8") as file:
+    with path.open(encoding="utf8") as file:
         source = file.read()
     return parse_network(source)

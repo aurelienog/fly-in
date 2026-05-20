@@ -31,10 +31,21 @@ class Hub:
     color: str | None = None
     connections: list[Connection] = field(default_factory=list)
 
-    @property
-    def is_start(self) -> bool:
-        return self.role is HubRole.START
+    # @property
+    # def is_start(self) -> bool:
+    #     return self.role is HubRole.START
 
-    @property
-    def is_end(self) -> bool:
-        return self.role is HubRole.END
+    # @property
+    # def is_end(self) -> bool:
+    #     return self.role is HubRole.END
+
+    def movement_cost(self) -> int:
+        if self.zone is ZoneType.RESTRICTED:
+            return 2
+        return 1
+
+    def is_traversable(self) -> bool:
+        return self.role is not ZoneType.BLOCKED
+
+    def is_priority(self) -> bool:
+        return self.role is ZoneType.PRIORITY
