@@ -31,14 +31,6 @@ class Hub:
     color: str | None = None
     connections: list[Connection] = field(default_factory=list)
 
-    # @property
-    # def is_start(self) -> bool:
-    #     return self.role is HubRole.START
-
-    # @property
-    # def is_end(self) -> bool:
-    #     return self.role is HubRole.END
-
     def movement_cost(self) -> int:
         if self.zone is ZoneType.RESTRICTED:
             return 2
@@ -49,3 +41,15 @@ class Hub:
 
     def is_priority(self) -> bool:
         return self.role is ZoneType.PRIORITY
+
+    def get_connection(self, hub: Hub) -> Connection:
+
+        for connection in self.connections:
+
+            if (connection.get_neighbor(self) == hub):
+                return connection
+
+        raise ValueError(
+            f"No connection between "
+            f"{self.name} and {hub.name}"
+        )
