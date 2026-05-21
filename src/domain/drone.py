@@ -1,6 +1,8 @@
+from .hub import Hub
 from dataclasses import dataclass
 
 
 @dataclass
 class Drone:
-    name: str
+    id: int
+    current_hub: Hub
