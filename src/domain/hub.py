@@ -37,10 +37,10 @@ class Hub:
         return 1
 
     def is_traversable(self) -> bool:
-        return self.role is not ZoneType.BLOCKED
+        return self.zone is not ZoneType.BLOCKED
 
     def is_priority(self) -> bool:
-        return self.role is ZoneType.PRIORITY
+        return self.zone is ZoneType.PRIORITY
 
     def get_connection(self, hub: Hub) -> Connection:
 
