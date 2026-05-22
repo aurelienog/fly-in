@@ -13,7 +13,7 @@ class Connection:
     hubs: tuple[Hub, Hub]
     max_link_capacity: int = 1
     occupation: int = 0
-    base_cost = None
+    base_cost: float | None = None
 
     def get_neighbor(self, hub) -> Hub:
         if self.hubs[0] == hub:
@@ -29,16 +29,16 @@ class Connection:
     def remaining_capacity(self) -> int:
         return self.max_link_capacity - self.occupation
 
-    def get_distance(self, target: Hub) -> float:
+    def get_distance(self) -> float:
         # distance = √((x2-x1)² + (y2-y1)²)
-        source = self.get_neighbor(target)
+        hub1, hub2 = self.hubs
 
-        dx = source.x - target.x
-        dy = source.y - target.y
+        dx = hub1.position[0] - hub2.position[0]
+        dy = hub1.position[1] - hub2.position[1]
 
         return math.sqrt(dx*dx + dy*dy)
 
-    def get_cost(self, target: Hub):
+    def get_cost(self, destination: Hub):
         """
         Returns the intrinsic traversal cost of this edge.
 
@@ -56,12 +56,15 @@ class Connection:
             - timestep-dependent costs
         """
 
-        cost = self.get_distance(target)
+        cost = self.get_distance(destination)
 
-        if target.zone == "restricted":
-            cost += 5
+        if destination.zone == "blocked":
+            return math.inf
 
-        elif target.zone == "priority":
-            cost -= 2
+        if destination.zone == "restricted":
+            cost += 2
+
+        elif destination.zone == "priority":
+            cost -= 0.1
 
         return max(1, cost)

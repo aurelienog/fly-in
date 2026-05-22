@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from ...domain import Connection, Hub
 
+import math
 
 @dataclass
 class CostModel:
@@ -110,7 +111,7 @@ class CostModel:
         )
         """
 
-        cost = connection.get_cost(target)
+        cost: int = connection.get_cost(target)
 
         if timestep is not None:
 
@@ -125,8 +126,8 @@ class CostModel:
 
     def heuristic(
         self,
-        current_hub,
-        target_hub
+        current_hub: Hub,
+        target_hub: Hub
     ) -> float:
         """
         Estimates the remaining cost from a node to the goal.
@@ -137,3 +138,9 @@ class CostModel:
 
         Lower estimates improve optimality guarantees.
         """
+        
+        dx = (current_hub.position[0] - target_hub.position[0])
+
+        dy = (current_hub.position[1] - target_hub.position[1])
+
+        return math.sqrt(dx*dx + dy*dy)

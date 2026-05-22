@@ -52,10 +52,7 @@ class ReservationTable:
 
                 previous = path[i - 1]
 
-                connection = (
-                    previous
-                    .get_connection(hub)
-                )
+                connection = (previous.get_connection(hub))
 
                 self.reserve_connection(
                     connection,

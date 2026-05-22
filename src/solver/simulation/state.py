@@ -6,4 +6,4 @@ from ...domain import Network, Drone
 class State:
     drones: Drone
     network: Network
-    time: 
+    time: int
