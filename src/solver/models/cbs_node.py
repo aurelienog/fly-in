@@ -1,17 +1,21 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from .cbs_constraint import CBSConstraint
 from ...domain import Drone, Hub
 
 
-@dataclass
+@dataclass(order=True)
 class CBSNode:
 
-    constraints: set[CBSConstraint]
+    cost: float
+
+    constraints: set[CBSConstraint] = field(
+        compare=False
+    )
 
     solution: dict[
         Drone,
         list[Hub]
-    ]
-
-    cost: float
+    ] = field(
+        compare=False
+    )

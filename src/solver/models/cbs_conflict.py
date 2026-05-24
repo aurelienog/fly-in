@@ -7,11 +7,9 @@ from ...domain import Drone, Hub, Connection
 class CBSConflict:
 
     drone1: Drone
-
     drone2: Drone
 
     timestep: int
 
     hub: Hub | None = None
-
     connection: Connection | None = None
