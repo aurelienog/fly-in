@@ -6,3 +6,4 @@ from dataclasses import dataclass
 class Drone:
     id: int
     current_hub: Hub
+    target_hub: Hub
