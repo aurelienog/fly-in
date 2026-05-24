@@ -20,12 +20,14 @@ class Scheduler:
         network: Network
     ) -> dict[Drone, list[Hub]]:
 
+      planner = self.planner
+
       if isinstance(
-          self.planner,
+          planner,
           BaseMultiPlanner
       ):
 
-          return self.planner.plan(
+          return planner.plan(
               drones,
               network
           )
@@ -38,7 +40,7 @@ class Scheduler:
       for drone in drones:
 
           solution[drone] = (
-              self.planner.plan(
+              planner.plan(
                   drone.current_hub,
                   drone.target_hub,
                   network
