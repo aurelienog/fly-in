@@ -39,8 +39,8 @@ class Scheduler:
 
           solution[drone] = (
               self.planner.plan(
-                  drone.start,
-                  drone.goal,
+                  drone.current_hub,
+                  drone.target_hub,
                   network
               )
           )
