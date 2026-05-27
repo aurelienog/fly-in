@@ -6,7 +6,6 @@ from ..simulation.reservation_table import ReservationTable
 from ..models.space_time_state import SpaceTimeState
 from ..models import CBSConstraint
 from ...domain import Connection
-
 from ...domain import Hub, Network
 
 
@@ -15,16 +14,16 @@ class SpaceTimeAStarPlanner(BasePlanner):
             self,
             reservation_table: ReservationTable,
             constraints: set[CBSConstraint] | None = None
-        ):
-            self.reservation_table: ReservationTable = reservation_table
-    
-            self.constraints = (
-                    constraints
-                    if constraints is not None
-                    else set()
-                )
+            ):
+        self.reservation_table: ReservationTable = reservation_table
 
-    def plan(self, start: Hub, goal: Hub, _network: Network) -> list[Hub]:
+        self.constraints = (
+                constraints
+                if constraints is not None
+                else set()
+            )
+
+    def plan(self, start: Hub, goal: Hub, network: Network) -> list[SpaceTimeState]:
 
         cost_model = CostModel()
 
@@ -54,17 +53,16 @@ class SpaceTimeAStarPlanner(BasePlanner):
                 heapq.heappop(queue)
             )
 
-            expected_priority = (g_score[current] + cost_model.heuristic(current.hub, goal))
+            expected_priority = (
+                g_score[current] + cost_model.heuristic(current.hub, goal)
+            )
 
             if priority > expected_priority:
                 continue
 
             if current.hub == goal:
 
-                return self.reconstruct_path(
-                    came_from,
-                    current
-                )
+                return self.reconstruct_path(came_from, current)
 
             for connection in current.hub.connections:
 
@@ -108,7 +106,9 @@ class SpaceTimeAStarPlanner(BasePlanner):
                     timestep=next_time
                 )
 
-                edge_cost = cost_model.edge_cost(connection, neighbor, timestep=next_time)
+                edge_cost = cost_model.edge_cost(connection,
+                                                 neighbor,
+                                                 timestep=next_time)
 
                 tentative_g = (g_score[current] + edge_cost)
 
@@ -130,18 +130,17 @@ class SpaceTimeAStarPlanner(BasePlanner):
     def reconstruct_path(
         self,
         came_from: dict[SpaceTimeState, SpaceTimeState | None],
-        current: SpaceTimeState
-    ) -> list[Hub]:
+        current: SpaceTimeState | None
+    ) -> list[SpaceTimeState]:
 
-        state_path = super().reconstruct_path(
-            came_from,
-            current
-        )
+        path: list[SpaceTimeState] = []
 
-        return [
-            state.hub
-            for state in state_path
-        ]
+        while current is not None:
+            path.append(current)
+            current = came_from[current]
+
+        path.reverse()
+        return path
 
     def is_forbidden(
         self,

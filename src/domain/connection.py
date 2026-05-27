@@ -56,7 +56,7 @@ class Connection:
             - timestep-dependent costs
         """
 
-        cost = self.get_distance(destination)
+        cost = self.get_distance()
 
         if destination.zone == "blocked":
             return math.inf

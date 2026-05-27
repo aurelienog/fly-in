@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from ...domain import Drone, Network, Hub
 from ..planners.base_multi_planner import BaseMultiPlanner
 from ..planners.base_planner import BasePlanner
-from ..planners.cbs import CBSPlanner
 from .reservation_table import ReservationTable
 
 
@@ -20,39 +19,27 @@ class Scheduler:
         network: Network
     ) -> dict[Drone, list[Hub]]:
 
-      planner = self.planner
+        planner = self.planner
 
-      if isinstance(
+        if isinstance(
           planner,
           BaseMultiPlanner
-      ):
+        ):
+            return planner.plan(drones, network)
 
-          return planner.plan(
-              drones,
-              network
-          )
+        solution: dict[Drone, list[Hub]] = {}
 
-      solution: dict[
-            Drone,
-            list[Hub]
-        ]  = {}
+        for drone in drones:
 
-      for drone in drones:
+            solution[drone] = planner.plan(
+                drone.current_hub,
+                drone.target_hub,
+                network
+            )
 
-          solution[drone] = (
-              planner.plan(
-                  drone.current_hub,
-                  drone.target_hub,
-                  network
-              )
-          )
+        return solution
 
-      return solution
-
-  # tick()
-
-  # move drones
-
-  # update occupancy
-
-  # release reservations
+# tick()
+# move drones
+# update occupancy
+# release reservations

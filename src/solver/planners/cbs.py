@@ -27,8 +27,8 @@ class CBSPlanner(BaseMultiPlanner):
             planner = SpaceTimeAStarPlanner()
 
             path = planner.plan(
-                drone.start,
-                drone.goal,
+                drone.current_hub,
+                drone.target_hub,
                 network
             )
 
@@ -92,15 +92,11 @@ class CBSPlanner(BaseMultiPlanner):
                     node.solution
                 )
 
-                planner = (
-                    SpaceTimeAStarPlanner(
-                        constraints=new_constraints
-                    )
-                )
+                planner = SpaceTimeAStarPlanner(constraints=new_constraints)
 
                 new_path = planner.plan(
-                    drone.start,
-                    drone.goal,
+                    drone.current_hub,
+                    drone.target_hub,
                     network
                 )
 
@@ -185,8 +181,7 @@ class CBSPlanner(BaseMultiPlanner):
         return None
 
 
-
-    # Multi-agent coordinator.
+# Multi-agent coordinator.
 
     # Usa A* internamente.
 

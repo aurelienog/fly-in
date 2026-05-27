@@ -28,11 +28,11 @@ class DijkstraPlanner(BasePlanner):
 
         g_score[start] = 0
 
-        queue: list[tuple[int, Hub]] = []
+        queue: list[tuple[float, Hub]] = []
 
         heapq.heappush(
             queue,
-            (0, start)
+            (0.0, start)
         )
 
         while queue:
@@ -85,6 +85,20 @@ class DijkstraPlanner(BasePlanner):
 
         return []
 
+    def reconstruct_path(
+        self,
+        came_from: dict[Hub, Hub | None],
+        current: Hub | None
+    ) -> list[Hub]:
+
+        path: list[Hub] = []
+
+        while current is not None:
+            path.append(current)
+            current = came_from[current]
+
+        path.reverse()
+        return path
 
     """
     current hub

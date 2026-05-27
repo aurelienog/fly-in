@@ -53,3 +53,6 @@ class Hub:
             f"No connection between "
             f"{self.name} and {hub.name}"
         )
+
+    def __hash__(self) -> int:
+        return hash(self.name)

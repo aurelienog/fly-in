@@ -3,6 +3,7 @@ from ...domain import Connection, Hub
 
 import math
 
+
 @dataclass
 class CostModel:
     """
@@ -111,7 +112,7 @@ class CostModel:
         )
         """
 
-        cost: int = connection.get_cost(target)
+        cost: int | float = connection.get_cost(target)
 
         if timestep is not None:
 
@@ -138,7 +139,7 @@ class CostModel:
 
         Lower estimates improve optimality guarantees.
         """
-        
+
         dx = (current_hub.position[0] - target_hub.position[0])
 
         dy = (current_hub.position[1] - target_hub.position[1])
