@@ -1,11 +1,6 @@
-from __future__ import annotations
 import math
-
-from typing import TYPE_CHECKING
+from .hub import Hub
 from dataclasses import dataclass
-
-if TYPE_CHECKING:
-    from .hub import Hub
 
 
 @dataclass

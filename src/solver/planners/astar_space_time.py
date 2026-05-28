@@ -3,25 +3,21 @@ import heapq
 from .base_planner import BasePlanner
 from ..cost.cost_model import CostModel
 from ..simulation.reservation_table import ReservationTable
-from ..models.space_time_state import SpaceTimeState
-from ..models import CBSConstraint
-from ...domain import Connection
-from ...domain import Hub, Network
+from ..models import CBSConstraint, SpaceTimeState
+from ...domain import Connection, Hub, Network
 
 
 class SpaceTimeAStarPlanner(BasePlanner):
     def __init__(
             self,
-            reservation_table: ReservationTable,
+            reservation_table: ReservationTable | None = None,
             constraints: set[CBSConstraint] | None = None
             ):
-        self.reservation_table: ReservationTable = reservation_table
-
-        self.constraints = (
-                constraints
-                if constraints is not None
-                else set()
+        self.reservation_table = (
+            reservation_table if reservation_table is not None else None
             )
+
+        self.constraints = constraints if constraints is not None else set()
 
     def plan(self, start: Hub, goal: Hub, network: Network) -> list[SpaceTimeState]:
 
@@ -84,8 +80,7 @@ class SpaceTimeAStarPlanner(BasePlanner):
 
                 if (
                     self.reservation_table is not None
-                    and
-                    not self.reservation_table.hub_available(
+                    and not self.reservation_table.hub_available(
                         neighbor,
                         next_time
                     )

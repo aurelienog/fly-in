@@ -2,11 +2,7 @@ import heapq
 
 from .base_multi_planner import BaseMultiPlanner
 from .astar_space_time import SpaceTimeAStarPlanner
-
-from ..models.cbs_node import CBSNode
-from ..models.cbs_constraint import CBSConstraint
-from ..models.cbs_conflict import CBSConflict
-
+from ..models import CBSNode, CBSConstraint, CBSConflict
 from ...domain import Drone, Network
 
 
