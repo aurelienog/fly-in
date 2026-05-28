@@ -1,7 +1,7 @@
 import pytest
 
-from ...parser.syntax_layer.dispatcher import parse_raw_network
-from ...errors import ParseError
+from src.parser.syntax_layer.dispatcher import parse_raw_network
+from src.errors import ParseError
 
 
 def test_nb_drones_must_be_first_line() -> None:

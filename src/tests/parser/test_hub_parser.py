@@ -1,12 +1,8 @@
-from __future__ import annotations
-from ...parser.syntax_layer import parse_hub
-from ...errors import InvalidSyntaxError
+from src.parser.syntax_layer import parse_hub
+from src.errors import InvalidSyntaxError
+from src.parser.models import RawHub
+
 import pytest
-
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from ...parser.models import RawHub
 
 
 def test_parse_valid_start_hub() -> None:

@@ -1,9 +1,7 @@
-from __future__ import annotations
-
 import pytest
 
-from ...errors import InvalidSyntaxError
-from ...parser.syntax_layer.metadata_parser import (parse_metadata)
+from src.errors import InvalidSyntaxError
+from src.parser.syntax_layer import (parse_metadata)
 
 
 def test_parse_metadata_none() -> None:

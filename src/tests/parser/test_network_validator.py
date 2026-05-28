@@ -1,23 +1,20 @@
-from __future__ import annotations
-
 import pytest
 
-from ...errors import SemanticError
-
-from ...parser.models import (
+from src.errors import SemanticError
+from src.parser.models import (
         RawHub,
         RawConnection,
         RawNetwork,
     )
 
-from ...parser.semantic_layer.network_validator import (
+from src.parser.semantic_layer.network_validator import (
     validate_hub_role,
     validate_unique_hubs,
     validate_start_end,
     validate_connections,
     validate_network,
 )
-from ...parser.semantic_layer.metadata_validator import (
+from src.parser.semantic_layer.metadata_validator import (
     validate_hub_metadata,
     validate_connection_metadata,
 )
