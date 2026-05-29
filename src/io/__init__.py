@@ -1,3 +1,3 @@
-from .file_loader import load_network
+from .file_loader import load_simulation
 
-__all__ = ["load_network"]
+__all__ = ["load_simulation"]
