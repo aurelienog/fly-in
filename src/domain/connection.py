@@ -63,3 +63,8 @@ class Connection:
             cost -= 0.1
 
         return max(1, cost)
+
+    def __hash__(self) -> int:
+        return hash(
+            frozenset(self.hubs)
+        )
