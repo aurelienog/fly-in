@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 
-from ...domain import Drone, Network, Hub
+from ...domain import Drone, Network
 from ..planners.base_multi_planner import BaseMultiPlanner
 from ..planners.base_planner import BasePlanner
 from .reservation_table import ReservationTable
+from ..models import SpaceTimeState
 
 
 @dataclass
@@ -17,7 +18,7 @@ class Scheduler:
         self,
         drones: list[Drone],
         network: Network
-    ) -> dict[Drone, list[Hub]]:
+    ) -> dict[Drone,  list[SpaceTimeState]]:
 
         planner = self.planner
 
@@ -27,15 +28,18 @@ class Scheduler:
         ):
             return planner.plan(drones, network)
 
-        solution: dict[Drone, list[Hub]] = {}
+        solution: dict[Drone, list[SpaceTimeState]] = {}
 
         for drone in drones:
 
-            solution[drone] = planner.plan(
+            path = planner.plan(
+                drone,
                 drone.current_hub,
                 drone.target_hub,
                 network
             )
+            solution[drone] = path
+            self.reservation_table.reserve_path(path)
 
         return solution
 

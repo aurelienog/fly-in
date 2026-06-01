@@ -23,6 +23,7 @@ class CBSPlanner(BaseMultiPlanner):
             planner = SpaceTimeAStarPlanner()
 
             path = planner.plan(
+                drone,
                 drone.current_hub,
                 drone.target_hub,
                 network
@@ -91,6 +92,7 @@ class CBSPlanner(BaseMultiPlanner):
                 planner = SpaceTimeAStarPlanner(constraints=new_constraints)
 
                 new_path = planner.plan(
+                    drone,
                     drone.current_hub,
                     drone.target_hub,
                     network
@@ -127,22 +129,14 @@ class CBSPlanner(BaseMultiPlanner):
         solution
     ) -> float:
 
-        return sum(
-            len(path)
-            for path
-            in solution.values()
-        )
+        return sum(len(path) for path in solution.values())
 
     def find_conflict(
         self,
         solution
     ) -> CBSConflict | None:
 
-        max_time = max(
-            len(path)
-            for path
-            in solution.values()
-        )
+        max_time = max(len(path) for path in solution.values())
 
         for timestep in range(max_time):
 

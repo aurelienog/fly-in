@@ -1,12 +1,11 @@
 import heapq
 import math
 
-from .base_planner import BasePlanner
 from ..cost.cost_model import CostModel
 from ...domain import Hub, Network
 
 
-class DijkstraPlanner(BasePlanner):
+class DijkstraPlanner():
 
     def plan(
         self,

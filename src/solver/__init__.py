@@ -1,6 +1,6 @@
 from .simulation import Scheduler, ReservationTable
-from .planners import CBSPlanner, astar_space_time, DijkstraPlanner
+from .planners import CBSPlanner, SpaceTimeAStarPlanner, DijkstraPlanner
+from .models import SpaceTimeState
 
-
-__all__ = ["Scheduler", "ReservationTable",
-           "CBSPlanner", "astar_space_time", "DijkstraPlanner"]
+__all__ = ["Scheduler", "ReservationTable", "SpaceTimeState",
+           "CBSPlanner", "SpaceTimeAStarPlanner", "DijkstraPlanner"]

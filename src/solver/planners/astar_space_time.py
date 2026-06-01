@@ -1,10 +1,11 @@
 import heapq
+from itertools import count
 
 from .base_planner import BasePlanner
 from ..cost.cost_model import CostModel
 from ..simulation.reservation_table import ReservationTable
-from ..models import CBSConstraint, SpaceTimeState
-from ...domain import Connection, Hub, Network
+from ..models import CBSConstraint, SpaceTimeState, EdgeTimeState
+from ...domain import Connection, Hub, Network, Drone
 
 
 class SpaceTimeAStarPlanner(BasePlanner):
@@ -13,52 +14,64 @@ class SpaceTimeAStarPlanner(BasePlanner):
             reservation_table: ReservationTable | None = None,
             constraints: set[CBSConstraint] | None = None
             ):
+
         self.reservation_table = (
             reservation_table if reservation_table is not None else None
             )
 
         self.constraints = constraints if constraints is not None else set()
 
-    def plan(self, start: Hub, goal: Hub, network: Network) -> list[SpaceTimeState]:
+    def plan(self, drone: Drone, start: Hub, goal: Hub, network: Network
+             ) -> list[SpaceTimeState]:
 
         cost_model = CostModel()
+        counter = count()
 
-        start_state = SpaceTimeState(
-            hub=start,
-            timestep=0
-        )
+        start_state = SpaceTimeState(hub=start, timestep=0)
 
         g_score: dict[SpaceTimeState, float] = {
-            start_state: 0
+            start_state: 0.0
         }
 
         came_from: dict[SpaceTimeState, SpaceTimeState | None] = {
             start_state: None
         }
 
-        queue: list[tuple[float, SpaceTimeState]] = []
+        queue: list[tuple[float, int, SpaceTimeState]] = []
+
+        h0 = cost_model.heuristic(start, goal)
 
         heapq.heappush(
             queue,
-            (0, start_state)
+            (h0, next(counter), start_state)
         )
 
         while queue:
 
-            priority, current = (
+            priority, _, current = (
                 heapq.heappop(queue)
             )
 
             expected_priority = (
-                g_score[current] + cost_model.heuristic(current.hub, goal)
+                g_score[current]
+                +
+                cost_model.heuristic(
+                    current.hub,
+                    goal
+                )
             )
+
+            # stale entry protection
 
             if priority > expected_priority:
                 continue
 
             if current.hub == goal:
 
-                return self.reconstruct_path(came_from, current)
+                return self.reconstruct_path(
+                    came_from,
+                    current
+                )
 
             for connection in current.hub.connections:
 
@@ -72,27 +85,10 @@ class SpaceTimeAStarPlanner(BasePlanner):
                 next_time = (current.timestep + movement_turns)
 
                 if self.is_forbidden(
+                    drone,
                     neighbor,
                     connection,
                     next_time
-                ):
-                    continue
-
-                if (
-                    self.reservation_table is not None
-                    and not self.reservation_table.hub_available(
-                        neighbor,
-                        next_time
-                    )
-                ):
-                    continue
-
-                if (
-                    self.reservation_table is not None
-                    and not self.reservation_table.connection_available(
-                        connection,
-                        next_time
-                    )
                 ):
                     continue
 
@@ -100,6 +96,18 @@ class SpaceTimeAStarPlanner(BasePlanner):
                     hub=neighbor,
                     timestep=next_time
                 )
+
+                if self.reservation_table is not None:
+                    if not self.reservation_table.state_available(neighbor_state):
+                        continue
+
+                edge_state = EdgeTimeState(
+                        connection=connection,
+                        timestep=next_time
+                    )
+
+                if not self.reservation_table.connection_available(edge_state):
+                    continue
 
                 edge_cost = cost_model.edge_cost(connection,
                                                  neighbor,
@@ -118,7 +126,7 @@ class SpaceTimeAStarPlanner(BasePlanner):
 
                     f_score = (tentative_g + cost_model.heuristic(neighbor, goal))
 
-                    heapq.heappush(queue, (f_score, neighbor_state))
+                    heapq.heappush(queue, (f_score, next(counter), neighbor_state))
 
         return []
 
@@ -139,12 +147,19 @@ class SpaceTimeAStarPlanner(BasePlanner):
 
     def is_forbidden(
         self,
+        drone: Drone,
         neighbor: Hub,
         connection: Connection,
         timestep: int
     ) -> bool:
 
         for constraint in self.constraints:
+
+            if constraint.drone != drone:
+                continue
+
+            if constraint.timestep != timestep:
+                continue
 
             # vertex constraint
 
