@@ -1,5 +1,6 @@
 import heapq
 import math
+from itertools import count
 
 from ..cost.cost_model import CostModel
 from ...domain import Hub, Network
@@ -15,6 +16,7 @@ class DijkstraPlanner():
     ) -> list[Hub]:
 
         cost_model = CostModel()
+        counter = count()
 
         g_score: dict[Hub, float] = {
             hub: math.inf
@@ -27,16 +29,16 @@ class DijkstraPlanner():
 
         g_score[start] = 0
 
-        queue: list[tuple[float, Hub]] = []
+        queue: list[tuple[float, int, Hub]] = []
 
         heapq.heappush(
             queue,
-            (0.0, start)
+            (0.0, next(counter), start)
         )
 
         while queue:
 
-            priority, current = heapq.heappop(queue)
+            priority, _, current = heapq.heappop(queue)
 
             # ignore stale entries
             if priority > g_score[current]:
@@ -78,6 +80,7 @@ class DijkstraPlanner():
                         queue,
                         (
                             tentative_g,
+                            next(counter),
                             neighbor
                         )
                     )
