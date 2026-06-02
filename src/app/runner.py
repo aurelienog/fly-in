@@ -1,5 +1,5 @@
 from ..io import load_simulation, render_drone_timeline
-from ..solver import Scheduler, CBSPlanner, SpaceTimeAStarPlanner, ReservationTable
+from ..solver import CBSPlanner, SpaceTimeAStarPlanner, ReservationTable, Scheduler
 
 
 def run_app(filename: str) -> None:
@@ -11,5 +11,7 @@ def run_app(filename: str) -> None:
     scheduler = Scheduler(planner, reservation_table)
 
     solution = scheduler.schedule(drones, network)
+
+    # planner = CBSPlanner()
+    # solution = planner.plan(drones, network)
     render_drone_timeline(solution)
-    print("ok")
