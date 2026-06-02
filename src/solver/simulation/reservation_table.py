@@ -1,4 +1,3 @@
-from ...domain import Connection
 from ..models import SpaceTimeState, EdgeTimeState
 
 from collections import defaultdict
@@ -23,9 +22,10 @@ class ReservationTable:
 
     def connection_available(
             self,
-            edge_state: EdgeTimeState
+            edge_state: EdgeTimeState | None
             ) -> bool:
-
+        if not edge_state:
+            return False
         occupied = self.edge_reservations[edge_state]
 
         return (occupied < edge_state.connection.max_link_capacity)
@@ -47,6 +47,9 @@ class ReservationTable:
                 continue
 
             previous = path[i - 1]
+
+            if previous.hub == state.hub:
+                continue
 
             connection = (previous.hub.get_connection(state.hub))
 
