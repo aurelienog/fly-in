@@ -22,12 +22,6 @@ class Scheduler:
 
         planner = self.planner
 
-        if isinstance(
-          planner,
-          BaseMultiPlanner
-        ):
-            return planner.plan(drones, network)
-
         solution: dict[Drone, list[SpaceTimeState]] = {}
 
         for drone in drones:

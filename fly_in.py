@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from src.app import run_app
-from src.errors import ParseError
+from src.errors import ParseError, SimulationError
 import sys
 
 
@@ -13,8 +13,13 @@ def main() -> None:
 
     try:
         run_app(sys.argv[1])
+
     except ParseError as exc:
         print(f"\033[31m[PARSE ERROR] {exc} \033[0m")
+        sys.exit(1)
+
+    except SimulationError as exc:
+        print(f"\033[31m[SIMULATION ERROR] {exc} \033[0m")
         sys.exit(1)
 
     except UnicodeError as exc:

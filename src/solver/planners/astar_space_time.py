@@ -9,7 +9,6 @@ from ..simulation.reservation_table import ReservationTable
 from ..models import (
     SpaceTimeState,
     EdgeTimeState,
-    CBSConstraint
 )
 
 from ...domain import (
@@ -22,19 +21,9 @@ from ...domain import (
 
 class SpaceTimeAStarPlanner(BasePlanner):
 
-    def __init__(
-        self,
-        reservation_table: ReservationTable | None = None,
-        constraints: set[CBSConstraint] | None = None
-    ):
+    def __init__(self, reservation_table: ReservationTable):
 
         self.reservation_table = reservation_table
-
-        self.constraints = (
-            constraints
-            if constraints is not None
-            else set()
-        )
 
     def plan(
         self,
@@ -170,14 +159,6 @@ class SpaceTimeAStarPlanner(BasePlanner):
                     movement_turns
                 )
 
-                if self.is_forbidden(
-                    drone,
-                    neighbor,
-                    connection,
-                    next_time
-                ):
-                    continue
-
                 neighbor_state = SpaceTimeState(
                     hub=neighbor,
                     timestep=next_time
@@ -286,37 +267,3 @@ class SpaceTimeAStarPlanner(BasePlanner):
         path.reverse()
 
         return path
-
-    def is_forbidden(
-        self,
-        drone: Drone,
-        neighbor: Hub,
-        connection: Connection | None,
-        timestep: int
-    ) -> bool:
-
-        for constraint in self.constraints:
-
-            if constraint.drone != drone:
-                continue
-
-            if constraint.timestep != timestep:
-                continue
-
-            # vertex constraint
-
-            if (
-                constraint.hub is not None
-                and constraint.hub == neighbor
-            ):
-                return True
-
-            # edge constraint
-
-            if (
-                connection is not None
-                and constraint.connection == connection
-            ):
-                return True
-
-        return False
