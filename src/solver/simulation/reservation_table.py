@@ -1,14 +1,14 @@
-from ..models import SpaceTimeState, EdgeTimeState
-
+from ..models import SpaceTimeState, EdgeTimeInterval
+from ...domain import Connection
 from collections import defaultdict
 
 
 class ReservationTable:
 
-    def __init__(self):
+    def __init__(self) -> None:
 
-        self.node_reservations = defaultdict(int)
-        self.edge_reservations = defaultdict(int)
+        self.node_reservations: dict[SpaceTimeState, int] = defaultdict(int)
+        self.edge_reservations: dict[tuple[Connection, int], int] = defaultdict(int)
 
     def state_available(self, state: SpaceTimeState) -> bool:
 
@@ -20,44 +20,113 @@ class ReservationTable:
 
         self.node_reservations[state] += 1
 
-    def connection_available(
-            self,
-            edge_state: EdgeTimeState | None
-            ) -> bool:
-        if not edge_state:
-            return False
-        occupied = self.edge_reservations[edge_state]
+    # def connection_available(
+    #         self,
+    #         edge_state: EdgeTimeState | None
+    #         ) -> bool:
+    #     if not edge_state:
+    #         return False
+    #     occupied = self.edge_reservations[edge_state]
 
-        return (occupied < edge_state.connection.max_link_capacity)
+    #     return (occupied < edge_state.connection.max_link_capacity)
+    def interval_available(self, interval: EdgeTimeInterval) -> bool:
 
-    def reserve_connection(
-        self,
-        edge_state: EdgeTimeState
-    ) -> None:
+        for t in range(interval.t_start, interval.t_end):
 
-        self.edge_reservations[edge_state] += 1
+            key = (interval.connection, t)
+
+            if self.edge_reservations[key] >= interval.connection.max_link_capacity:
+                return False
+
+        return True
+
+    # def reserve_connection(
+    #     self,
+    #     edge_state: EdgeTimeState
+    # ) -> None:
+
+    #     self.edge_reservations[edge_state] += 1
+    def reserve_interval(self, interval: EdgeTimeInterval) -> None:
+        for t in range(interval.t_start, interval.t_end):
+
+            key = (interval.connection, t)
+            self.edge_reservations[key] += 1
 
     def reserve_path(self, path: list[SpaceTimeState]) -> None:
 
-        for i, state in enumerate(path):
-
+        for state in path:
             self.reserve_state(state)
 
-            if i == 0:
+        for prev, curr in zip(path, path[1:]):
+
+            if prev.hub == curr.hub:
                 continue
 
-            previous = path[i - 1]
+            connection = prev.hub.get_connection(curr.hub)
 
-            if previous.hub == state.hub:
-                continue
-
-            connection = (previous.hub.get_connection(state.hub))
-
-            edge_state = EdgeTimeState(
+            interval = EdgeTimeInterval(
                 connection=connection,
-                timestep=state.timestep
+                t_start=prev.timestep,
+                t_end=curr.timestep
             )
-            self.reserve_connection(edge_state)
+
+            self.reserve_interval(interval)
+
+    # def reserve_path(
+    #     self,
+    #     path: list[SpaceTimeState]
+    # ) -> None:
+
+    #     for state in path:
+    #         self.reserve_state(state)
+
+    #     for previous, current in zip(
+    #         path,
+    #         path[1:]
+    #     ):
+
+    #         if previous.hub == current.hub:
+    #             continue
+
+    #         connection = (
+    #             previous.hub
+    #             .get_connection(current.hub)
+    #         )
+
+    #         for t in range(
+    #             previous.timestep + 1,
+    #             current.timestep + 1
+    #         ):
+    #             edge_state = EdgeTimeState(
+    #                 connection=connection,
+    #                 timestep=t
+    #             )
+
+    #             self.reserve_connection(
+    #                 edge_state
+    #             )
+
+    # def reserve_path(self, path: list[SpaceTimeState]) -> None:
+
+    #     for i, state in enumerate(path):
+
+    #         self.reserve_state(state)
+
+    #         if i == 0:
+    #             continue
+
+    #         previous = path[i - 1]
+
+    #         if previous.hub == state.hub:
+    #             continue
+
+    #         connection = (previous.hub.get_connection(state.hub))
+
+    #         edge_state = EdgeTimeState(
+    #             connection=connection,
+    #             timestep=state.timestep
+    #         )
+    #         self.reserve_connection(edge_state)
 
 
 # class ReservationTable:

@@ -26,10 +26,8 @@ class Scheduler:
         for drone in drones:
 
             path = planner.plan(
-                drone,
                 drone.current_hub,
                 drone.target_hub,
-                network
             )
             solution[drone] = path
             self.reservation_table.reserve_path(path)
