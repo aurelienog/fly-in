@@ -1,8 +1,6 @@
 import heapq
 from itertools import count
 
-from .base_planner import BasePlanner
-
 from ..cost.cost_model import CostModel
 from ..simulation.reservation_table import ReservationTable
 
@@ -19,7 +17,7 @@ from ...domain import (
 )
 
 
-class SpaceTimeAStarPlanner(BasePlanner):
+class SpaceTimeAStarPlanner():
 
     def __init__(self, reservation_table: ReservationTable):
 
