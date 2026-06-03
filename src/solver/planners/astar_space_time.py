@@ -6,33 +6,26 @@ from ..simulation.reservation_table import ReservationTable
 
 from ..models import (
     SpaceTimeState,
-    EdgeTimeState,
+    EdgeTimeInterval,
 )
 
 from ...domain import (
-    Drone,
     Hub,
-    Connection,
-    Network
 )
 
 
 class SpaceTimeAStarPlanner():
 
-    def __init__(self, reservation_table: ReservationTable):
-
+    def __init__(self, reservation_table: ReservationTable) -> None:
         self.reservation_table = reservation_table
 
     def plan(
         self,
-        drone: Drone,
         start: Hub,
         goal: Hub,
-        network: Network
     ) -> list[SpaceTimeState]:
 
         cost_model = CostModel()
-
         counter = count()
 
         start_state = SpaceTimeState(
@@ -40,32 +33,15 @@ class SpaceTimeAStarPlanner():
             timestep=0
         )
 
-        g_score: dict[
-            SpaceTimeState,
-            float
-        ] = {
-            start_state: 0.0
-        }
+        g_score: dict[SpaceTimeState, float] = {start_state: 0.0}
 
         came_from: dict[
-            SpaceTimeState,
-            SpaceTimeState | None
-        ] = {
-            start_state: None
-        }
+            SpaceTimeState, SpaceTimeState | None
+        ] = {start_state: None}
 
-        queue: list[
-            tuple[
-                float,
-                int,
-                SpaceTimeState
-            ]
-        ] = []
+        queue: list[tuple[float, int, SpaceTimeState]] = []
 
-        initial_f = cost_model.heuristic(
-            start,
-            goal
-        )
+        initial_f = cost_model.heuristic(start, goal)
 
         heapq.heappush(
             queue,
@@ -103,142 +79,74 @@ class SpaceTimeAStarPlanner():
                     current
                 )
 
-            candidate_moves: list[
-                tuple[
-                    Hub,
-                    Connection | None
-                ]
-            ] = []
-
             # normal moves
 
             for connection in current.hub.connections:
 
-                neighbor = (
-                    connection.get_neighbor(
-                        current.hub
-                    )
-                )
-
-                candidate_moves.append(
-                    (
-                        neighbor,
-                        connection
-                    )
-                )
-
-            # WAIT action
-
-            candidate_moves.append(
-                (
-                    current.hub,
-                    None
-                )
-            )
-
-            for neighbor, connection in candidate_moves:
+                neighbor = (connection.get_neighbor(current.hub))
 
                 if not neighbor.is_traversable():
                     continue
 
-                if connection is None:
-
-                    movement_turns = 1
-
-                else:
-
-                    movement_turns = (
-                        neighbor.movement_cost()
-                    )
-
-                next_time = (
-                    current.timestep
-                    +
-                    movement_turns
+                next_time = current.timestep + neighbor.movement_cost()
+                neighbor_state = SpaceTimeState(neighbor, next_time)
+                #
+                # NODE CHECK
+                #
+                if not self.reservation_table.state_available(neighbor_state):
+                    continue
+                #
+                # EDGE CHECK (INTERVAL)
+                #
+                interval = EdgeTimeInterval(
+                    connection=connection,
+                    t_start=current.timestep,
+                    t_end=next_time
                 )
+                if not self.reservation_table.interval_available(interval):
+                    continue
 
-                neighbor_state = SpaceTimeState(
-                    hub=neighbor,
-                    timestep=next_time
-                )
+                #
+                # COST
+                #
+                edge_cost = cost_model.edge_cost(connection, neighbor)
 
-                if self.reservation_table is not None:
-
-                    if not (
-                        self.reservation_table
-                        .state_available(
-                            neighbor_state
-                        )
-                    ):
-                        continue
-
-                    if connection is not None:
-
-                        edge_state = EdgeTimeState(
-                            connection=connection,
-                            timestep=next_time
-                        )
-
-                        if not (
-                            self.reservation_table
-                            .connection_available(
-                                edge_state
-                            )
-                        ):
-                            continue
-
-                if connection is None:
-
-                    edge_cost = 1
-
-                else:
-
-                    edge_cost = (
-                        cost_model.edge_cost(
-                            connection,
-                            neighbor,
-                            timestep=next_time
-                        )
-                    )
-
-                tentative_g = (
-                    g_score[current]
-                    +
-                    edge_cost
-                )
-
+                tentative_g = g_score[current] + edge_cost
                 if (
                     neighbor_state not in g_score
-                    or
-                    tentative_g
-                    <
-                    g_score[neighbor_state]
+                    or tentative_g < g_score[neighbor_state]
                 ):
+                    g_score[neighbor_state] = tentative_g
+                    came_from[neighbor_state] = current
 
-                    g_score[
-                        neighbor_state
-                    ] = tentative_g
-
-                    came_from[
-                        neighbor_state
-                    ] = current
-
-                    f_score = (
-                        tentative_g
-                        +
-                        cost_model.heuristic(
-                            neighbor,
-                            goal
-                        )
-                    )
+                    f_score = tentative_g + cost_model.heuristic(neighbor, goal)
 
                     heapq.heappush(
                         queue,
-                        (
-                            f_score,
-                            next(counter),
-                            neighbor_state
-                        )
+                        (f_score, next(counter), neighbor_state)
+                    )
+
+            # WAIT action
+
+            wait_state = SpaceTimeState(current.hub, current.timestep + 1)
+
+            if self.reservation_table.state_available(wait_state):
+
+                tentative_g = g_score[current] + 1
+
+                if (
+                    wait_state not in g_score
+                    or tentative_g < g_score[wait_state]
+                ):
+
+                    g_score[wait_state] = tentative_g
+                    came_from[wait_state] = current
+
+                    f_score = tentative_g + cost_model.heuristic(current.hub, goal)
+
+                    heapq.heappush(
+                        queue,
+                        (f_score, next(counter), wait_state)
                     )
 
         return []

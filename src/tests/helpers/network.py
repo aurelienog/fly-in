@@ -11,7 +11,7 @@ def connect(a: Hub, b: Hub) -> Connection:
     return connection
 
 
-def build_linear_network(size: int):
+def build_linear_network(size: int) -> tuple[Network, list[Hub]]:
 
     hubs = []
 

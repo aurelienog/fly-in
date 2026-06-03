@@ -9,7 +9,7 @@ import pytest
     "size",
     [2, 3, 5, 10]
 )
-def test_linear_network(size):
+def test_linear_network(size: int) -> None:
 
     planner = DijkstraPlanner()
     network, hubs = build_linear_network(size)
@@ -23,7 +23,7 @@ def test_linear_network(size):
     assert path == hubs
 
 
-def test_returns_empty_when_no_path():
+def test_returns_empty_when_no_path() -> None:
 
     planner = DijkstraPlanner()
     a = Hub("start", (0, 0), HubRole.START, max_drones=2)
@@ -39,7 +39,7 @@ def test_returns_empty_when_no_path():
     "size",
     [3, 5, 10]
 )
-def test_ignores_non_traversable_nodes(size):
+def test_ignores_non_traversable_nodes(size: int) -> None:
 
     planner = DijkstraPlanner()
     network, hubs = build_linear_network(size)
@@ -50,7 +50,7 @@ def test_ignores_non_traversable_nodes(size):
     assert path == []
 
 
-def test_chooses_lowest_cost_path():
+def test_chooses_lowest_cost_path() -> None:
 
     planner = DijkstraPlanner()
     start, cheap_1, cheap_2, expensive, goal, network = build_multiple_path_network()
@@ -61,7 +61,7 @@ def test_chooses_lowest_cost_path():
     assert len(path) == 4
 
 
-def test_start_equals_goal():
+def test_start_equals_goal() -> None:
 
     planner = DijkstraPlanner()
     network, _ = build_linear_network(1)

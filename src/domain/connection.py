@@ -1,5 +1,5 @@
 import math
-from .hub import Hub
+from .hub import Hub, ZoneType
 from dataclasses import dataclass
 
 
@@ -53,13 +53,13 @@ class Connection:
 
         cost = self.get_distance()
 
-        if destination.zone == "blocked":
+        if destination.zone == ZoneType.BLOCKED:
             return math.inf
 
-        if destination.zone == "restricted":
+        if destination.zone == ZoneType.RESTRICTED:
             cost += 2
 
-        elif destination.zone == "priority":
+        elif destination.zone == ZoneType.PRIORITY:
             cost -= 0.1
 
         return max(1, cost)

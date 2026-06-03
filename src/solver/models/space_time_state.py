@@ -4,7 +4,5 @@ from ...domain import Hub
 
 @dataclass(frozen=True)
 class SpaceTimeState:
-
     hub: Hub
-
     timestep: int

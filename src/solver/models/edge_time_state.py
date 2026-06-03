@@ -3,7 +3,7 @@ from ...domain import Connection
 
 
 @dataclass(frozen=True)
-class EdgeTimeState:
-
+class EdgeTimeInterval:
     connection: Connection
-    timestep: int
+    t_start: int
+    t_end: int

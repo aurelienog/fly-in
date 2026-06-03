@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from ...domain import Connection, Hub
+from ...domain import Connection, Hub, ZoneType
 
 import math
 
@@ -58,7 +58,6 @@ class CostModel:
         self,
         connection: Connection,
         target: Hub,
-        timestep: int | None = None
     ):
         """
         Computes the traversal cost of using a connection at a specific
@@ -111,19 +110,37 @@ class CostModel:
             + 10 * connection.current_load
         )
         """
+        cost = (
+            connection.get_distance()
+            + target.movement_cost()
+        )
 
-        cost: int | float = connection.get_cost(target)
+        if target.zone is ZoneType.BLOCKED:
+            return math.inf
 
-        if timestep is not None:
+        utilization = (
+            connection.occupation
+            / connection.max_link_capacity
+        )
 
-            # future logic
-            # reservation_table lookup
-            # congestion prediction
-            # dynamic penalties
+        cost += utilization * 5.0
 
-            pass
+        if target.zone is ZoneType.PRIORITY:
+            cost *= 0.9
 
         return cost
+        # cost: int | float = connection.get_cost(target)
+
+        # if timestep is not None:
+
+        #     # future logic
+        #     # reservation_table lookup
+        #     # congestion prediction
+        #     # dynamic penalties
+
+        #     pass
+
+        # return cost
 
     def heuristic(
         self,
