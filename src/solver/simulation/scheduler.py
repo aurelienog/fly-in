@@ -1,16 +1,15 @@
 from dataclasses import dataclass
 
 from ...domain import Drone, Network
-from ..planners.base_multi_planner import BaseMultiPlanner
-from ..planners.base_planner import BasePlanner
 from .reservation_table import ReservationTable
 from ..models import SpaceTimeState
+from ..planners import SpaceTimeAStarPlanner
 
 
 @dataclass
 class Scheduler:
 
-    planner: BasePlanner | BaseMultiPlanner
+    planner: SpaceTimeAStarPlanner
 
     reservation_table: ReservationTable
 
