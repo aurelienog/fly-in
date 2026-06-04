@@ -54,24 +54,3 @@ def render_drone_timeline(
     #
     for timestep in sorted(turns):
         print(f"T{timestep:03d}: " + " ".join(turns[timestep]))
-# def render_drone_timeline(
-#     solution: dict[Drone, list[SpaceTimeState]]
-# ) -> None:
-#     turns: dict[int, list[str]] = defaultdict(list)
-
-#     for drone, path in solution.items():
-#         for state in path[1:]:
-#             if not state.hub.color:
-#                 colored_name = state.hub
-#             else:
-#                 color = state.hub.color.upper()
-#                 if color == "RAINBOW":
-#                     colored_name = ColorPalette.rainbow(state.hub.name)
-#                 else:
-#                     colored_name = f"{getattr(ColorPalette, color)}{state.hub.name}"
-#                     f"{ColorPalette.RESET}"
-
-#             turns[state.timestep].append(f"{drone.id}-{colored_name}")
-
-#     for timestep in sorted(turns):
-#         print(" ".join(turns[timestep]))
