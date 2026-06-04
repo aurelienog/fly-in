@@ -1,4 +1,4 @@
-from ..io import load_simulation
+from .file_loader import load_simulation
 from ..solver import SpaceTimeAStarPlanner, ReservationTable, Scheduler
 from ..visualization import TimelineExpander, render_drone_timeline
 
