@@ -7,7 +7,7 @@ from collections import deque
 def has_path(network: Network) -> bool:
     start = network.start_hub
 
-    queue: deque[Hub] = [start]
+    queue: deque[Hub] = deque([start])
     visited: set[Hub] = {start}
 
     while queue:
