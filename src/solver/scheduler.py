@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
-from ...domain import Drone, Network
+from ..domain import Drone, Network
 from .reservation_table import ReservationTable
-from ..models import SpaceTimeState
-from ..planners import SpaceTimeAStarPlanner
+from .models import SpaceTimeState
+from .planner import SpaceTimeAStarPlanner
 
 
 @dataclass

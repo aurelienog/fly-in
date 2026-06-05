@@ -1,15 +1,15 @@
 import heapq
 from itertools import count
 
-from ..cost.cost_model import CostModel
-from ..simulation.reservation_table import ReservationTable
+from .cost_model import CostModel
+from .reservation_table import ReservationTable
 
-from ..models import (
+from .models import (
     SpaceTimeState,
     EdgeTimeInterval,
 )
 
-from ...domain import (
+from ..domain import (
     Hub,
 )
 

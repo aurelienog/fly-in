@@ -1,5 +1,5 @@
-from ..models import SpaceTimeState, EdgeTimeInterval
-from ...domain import Connection
+from .models import SpaceTimeState, EdgeTimeInterval
+from ..domain import Connection
 from collections import defaultdict
 
 

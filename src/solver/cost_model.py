@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from ...domain import Connection, Hub, ZoneType
+from ..domain import Connection, Hub, ZoneType
 
 import math
 
