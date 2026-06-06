@@ -9,19 +9,23 @@ def render_terminal(
         solution: dict[Drone, list[State]]) -> None:
 
     turns: dict[int, list[str]] = defaultdict(list)
-    previous_label: dict[Drone, str] = {}
+    previous_location: dict[Drone, object] = {}
+
+    hub_occupancy: dict[int, dict[Hub, int]] = defaultdict(lambda: defaultdict(int))
+    connection_occupancy = defaultdict(lambda: defaultdict(int))
 
     for drone, timeline in solution.items():
         timeline = sorted(timeline, key=lambda s: s.timestep)
 
         for state in timeline:
 
-            #
-            # HUB STATE
-            #
             if isinstance(state, HubState):
+                location = ("hub", state.hub)
 
+                hub_occupancy[state.timestep][state.hub] += 1
                 hub: Hub = state.hub
+
+                occupied = hub_occupancy[state.timestep][hub]
 
                 if not getattr(hub, "color", None):
                     label = hub.name
@@ -34,22 +38,32 @@ def render_terminal(
                         label = (
                             f"{RenderColors.ANSI[color]}"
                             f"{hub.name}"
+                            f"<{occupied}/{hub.max_drones}>"
                             f"{RenderColors.ANSI[Color.DEFAULT]}"
                         )
             #
             # CONNECTION STATE
             #
             elif isinstance(state, ConnectionState):
+                location = (
+                    "connection",
+                    state.from_hub,
+                    state.to_hub
+                )
+                key = (state.from_hub, state.to_hub)
 
-                label = f"{state.from_hub.name}->{state.to_hub.name}"
+                connection_occupancy[state.timestep][key] += 1
+                occupied = connection_occupancy[state.timestep][(state.from_hub, state.to_hub)]
 
+                label = (f"{state.from_hub.name}->{state.to_hub.name}"
+                         f"<{occupied}/{state.connection.max_link_capacity}>")
             else:
                 continue
 
-            if previous_label.get(drone) != label:
+            if previous_location.get(drone) != location:
                 turns[state.timestep].append(f"{drone.id}-{label}")
 
-            previous_label[drone] = label
+            previous_location[drone] = location
     #
     # PRINT
     #
