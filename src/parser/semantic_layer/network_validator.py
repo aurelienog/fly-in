@@ -5,16 +5,6 @@ from .metadata_validator import (validate_hub_metadata,
                                  validate_connection_metadata)
 
 
-def validate_hub_role(raw_hub: RawHub) -> None:
-
-    try:
-        HubRole(raw_hub.hub_type)
-
-    except ValueError as exc:
-        raise SemanticError(f"line {raw_hub.line}: invalid hub role: {raw_hub.hub_type}"
-                            ) from exc
-
-
 def validate_unique_hubs(
     hubs: list[RawHub],
 ) -> None:
@@ -40,7 +30,12 @@ def validate_start_end(
     end_lines = []
 
     for hub in hubs:
-        role = HubRole(hub.hub_type)
+        try:
+            role = HubRole(hub.hub_type)
+        except ValueError as exc:
+            raise SemanticError(
+                f"line {hub.line}: invalid hub role: {hub.hub_type}"
+            ) from exc
 
         if role is HubRole.START:
             start_count += 1
@@ -51,12 +46,14 @@ def validate_start_end(
             end_lines.append(hub.line)
 
     if start_count != 1:
-        raise SemanticError(f"multiple starts: lines {start_lines}: Network must"
-                            " contain exactly one start_hub")
+        raise SemanticError(
+            f"found {start_count} start_hub(s), expected exactly one"
+            )
 
     if end_count != 1:
-        raise SemanticError(f"multiple ends: lines {end_lines}: Network must"
-                            " contain exactly one end_hub")
+        raise SemanticError(
+            f"found {end_count} end_hub(s), expected exactly one"
+            )
 
 
 def validate_connections(
@@ -77,6 +74,11 @@ def validate_connections(
                 f"line {connection.line}: Unknown hub in connection: {connection.b}"
             )
 
+        if connection.a == connection.b:
+            raise SemanticError(
+                f"line {connection.line}: self-connections are not allowed"
+            )
+
         key = frozenset({
             connection.a,
             connection.b,
@@ -90,12 +92,31 @@ def validate_connections(
         seen_connections.add(key)
 
 
+def validate_unique_coordinates(
+    hubs: list[RawHub],
+) -> None:
+
+    seen: dict[tuple[int, int], int] = {}
+
+    for hub in hubs:
+        coords = (hub.x, hub.y)
+
+        if coords in seen:
+            raise SemanticError(
+                f"line {hub.line}: coordinates {coords} "
+                f"already used on line {seen[coords]}"
+            )
+
+        seen[coords] = hub.line
+
+
 def validate_network(raw: RawNetwork) -> None:
 
     if raw.nb_drones <= 0:
         raise SemanticError("First line error: Drone count must be positive")
 
     validate_unique_hubs(raw.hubs)
+    validate_unique_coordinates(raw.hubs)
     validate_start_end(raw.hubs)
     validate_connections(raw)
 
