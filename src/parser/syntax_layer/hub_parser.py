@@ -59,6 +59,6 @@ def parse_hub(
         y=y_int,
 
         zone=meta.get("zone", "normal"),
-        color=meta.get("color"),
+        color=meta.get("color", "default"),
         max_drones=max_drones,
     )

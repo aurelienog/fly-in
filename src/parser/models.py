@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from ..domain import Color
 
 
 @dataclass
@@ -12,7 +13,7 @@ class RawHub:
     y: int
 
     zone: str = "normal"
-    color: str | None = None
+    color: Color = Color.DEFAULT
     max_drones: int = 1
 
 

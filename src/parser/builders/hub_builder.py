@@ -1,5 +1,5 @@
 from ..models import RawHub
-from ...domain import Hub, HubRole, ZoneType
+from ...domain import Hub, HubRole, ZoneType, Color
 
 
 def build_hub(raw: RawHub) -> Hub:
@@ -23,5 +23,5 @@ def build_hub(raw: RawHub) -> Hub:
 
         max_drones=raw.max_drones,
 
-        color=raw.color
+        color=Color(raw.color)
     )

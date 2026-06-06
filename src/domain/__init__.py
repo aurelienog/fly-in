@@ -3,8 +3,8 @@ from .network import Network
 from .hub import Hub, HubRole, ZoneType
 from .drone import Drone
 from .simulation import Simulation
-
+from .colors import Color
 
 __all__ = ["Connection", "Network",
            "Hub", "HubRole", "ZoneType",
-           "Drone", "Simulation"]
+           "Drone", "Simulation", "Color"]

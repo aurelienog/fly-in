@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+from .colors import Color
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING
@@ -28,7 +28,7 @@ class Hub:
     role: HubRole
     zone: ZoneType = ZoneType.NORMAL
     max_drones: int = 1
-    color: str | None = None
+    color: Color = Color.DEFAULT
     connections: list[Connection] = field(default_factory=list)
 
     def movement_cost(self) -> int:
