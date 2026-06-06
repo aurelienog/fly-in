@@ -1,7 +1,8 @@
 from ..models import RawNetwork
-from ...domain import Network, Hub, Connection
+from ...domain import Network, Hub, Connection, HubRole
 from .hub_builder import build_hub
 from .connection_builder import build_connection
+from ...errors import SemanticError
 
 
 def build_hub_map(raw: RawNetwork) -> tuple[dict[str, Hub], Hub | None, Hub | None]:
@@ -14,10 +15,10 @@ def build_hub_map(raw: RawNetwork) -> tuple[dict[str, Hub], Hub | None, Hub | No
         hub = build_hub(h)
         hub_map[h.name] = hub
 
-        if h.hub_type == "start_hub":
+        if h.hub_type == HubRole.START.value:
             start_hub = hub
 
-        elif h.hub_type == "end_hub":
+        elif h.hub_type == HubRole.END.value:
             end_hub = hub
 
     return hub_map, start_hub, end_hub
@@ -27,8 +28,8 @@ def build_network(raw: RawNetwork) -> Network:
 
     hub_map, start_hub, end_hub = build_hub_map(raw)
 
-    assert start_hub is not None
-    assert end_hub is not None
+    if start_hub is None or end_hub is None:
+        raise SemanticError("Invalid network: missing start or end hub")
 
     connections: list[Connection] = [
         build_connection(raw_connection, hub_map)
