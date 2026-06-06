@@ -18,7 +18,4 @@ def build_connection(
     hub_a.connections.append(connection)
     hub_b.connections.append(connection)
 
-    return Connection(
-        hubs=(hub_a, hub_b),
-        max_link_capacity=raw_connection.max_link_capacity,
-    )
+    return connection
