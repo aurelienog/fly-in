@@ -18,3 +18,4 @@ class ConnectionState(State):
     timestep: int
     from_hub: Hub
     to_hub: Hub
+    progress: float

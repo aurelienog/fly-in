@@ -67,11 +67,17 @@ class TimelineExpander:
                 previous.timestep + 1,
                 current.timestep
             ):
+                progress = (
+                    t - previous.timestep
+                ) / (
+                    current.timestep - previous.timestep
+                )
                 timeline.append(ConnectionState(
                     connection=connection,
                     timestep=t,
                     from_hub=previous.hub,
-                    to_hub=current.hub)
+                    to_hub=current.hub,
+                    progress=progress)
                     )
 
             timeline.append(
