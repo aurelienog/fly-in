@@ -1,92 +1,219 @@
-from .timeline import Timeline
-from .renderer import PygameRenderer
-from .screen import Screen
+import pygame
+
 from .camera import Camera
-from ..state import HubState, ConnectionState
+from .renderer import Renderer
+from .screen import Screen
+from ..state import State
+from ...domain import Drone, Network
 
 
 class Game:
+    def __init__(
+        self,
+        network: Network,
+        simulation: dict[Drone, list[State]],
+    ):
+        self.network = network
+        self.simulation = simulation
 
-    def __init__(self, solution):
+        self.hubs = network.hubs
+        self.connections = network.connections
 
-        self.timeline = solution
-        self.renderer = PygameRenderer()
-        self.camera = Camera(1280, 720)
         self.screen = Screen()
 
-        self.timestep = 0
-
-        self.center_x, self.center_y = self.compute_map_center(
-            solution
+        self.camera = Camera(
+            self.screen.WIDTH,
+            self.screen.HEIGHT,
         )
 
-    def run(self, start):
+        self.renderer = Renderer()
 
-        import pygame
+        self.current_timestep = 0
 
-        clock = pygame.time.Clock()
-        running = True
+        self.max_timestep = max(
+            state.timestep
+            for states in simulation.values()
+            for state in states
+        )
 
-        while running:
+        self.running = True
 
-            for event in pygame.event.get():
+        self.playing = True
 
-                if event.type == pygame.QUIT:
-                    running = False
+        self.step_delay_ms = 500
 
-                elif event.type == pygame.KEYDOWN:
+        self.last_step_time = (
+            pygame.time.get_ticks()
+        )
 
-                    if event.key == pygame.K_RIGHT:
-                        self.timestep = min(
-                            self.timestep + 1,
-                            self.timeline.max_timestep
-                        )
+        self._fit_camera_to_graph()
 
-                    elif event.key == pygame.K_LEFT:
-                        self.timestep = max(self.timestep - 1, 0)
+    def run(self):
+        while self.running:
 
-            self.screen.fill("white")
+            self._handle_events()
 
-            self.camera.x = self.center_x
-            self.camera.y = self.center_y
+            self._update_playback()
 
-            states = self.timeline.states_at(self.timestep)
+            self.screen.clear()
 
-            self.renderer.draw(
-                start,
-                self.screen,
-                states,
-                self.camera
+            current_states = (
+                self._states_for_timestep(
+                    self.current_timestep
+                )
             )
 
-            pygame.display.flip()
+            self.renderer.render(
+                self.screen.surface,
+                self.camera,
+                self.network,
+                current_states,
+                self.current_timestep,
+            )
 
-            clock.tick(60)
+            self.screen.update()
 
         pygame.quit()
 
-    def compute_map_center(self, solution):
-        xs = []
-        ys = []
+    def _update_playback(self):
 
-        for states in solution.values():
-            for state in states:
+        if not self.playing:
+            return
 
-                if isinstance(state, HubState):
-                    xs.append(state.hub.position[0])
-                    ys.append(state.hub.position[1])
+        now = pygame.time.get_ticks()
 
-                elif isinstance(state, ConnectionState):
-                    from_x, from_y = state.from_hub.position
-                    to_x, to_y = state.to_hub.position
+        if (
+            now - self.last_step_time
+            >= self.step_delay_ms
+        ):
 
-                    xs.extend([from_x, to_x])
-                    ys.extend([from_y, to_y])
+            self.last_step_time = now
 
-        if not xs:
-            return 0, 0
+            if (
+                self.current_timestep
+                < self.max_timestep
+            ):
+                self.current_timestep += 1
 
-        return (
-            (min(xs) + max(xs)) / 2,
-            (min(ys) + max(ys)) / 2,
+    def _handle_events(self):
+
+        for event in pygame.event.get():
+
+            if event.type == pygame.QUIT:
+                self.running = False
+
+            elif event.type == pygame.KEYDOWN:
+
+                if event.key == pygame.K_RIGHT:
+
+                    self.current_timestep = min(
+                        self.max_timestep,
+                        self.current_timestep + 1,
+                    )
+
+                elif event.key == pygame.K_LEFT:
+
+                    self.current_timestep = max(
+                        0,
+                        self.current_timestep - 1,
+                    )
+
+                elif event.key == pygame.K_SPACE:
+
+                    self.playing = (
+                        not self.playing
+                    )
+
+                elif event.key == pygame.K_q:
+
+                    self.camera.set_zoom(
+                        self.camera.zoom * 1.1
+                    )
+
+                elif event.key == pygame.K_e:
+
+                    self.camera.set_zoom(
+                        self.camera.zoom / 1.1
+                    )
+
+    def _states_for_timestep(
+        self,
+        timestep,
+    ):
+        result = {}
+
+        for drone, states in (
+            self.simulation.items()
+        ):
+
+            valid = [
+                state
+                for state in states
+                if state.timestep <= timestep
+            ]
+
+            if valid:
+                result[drone] = valid[-1]
+
+        return result
+
+    def _fit_camera_to_graph(self):
+
+        if not self.hubs:
+            return
+
+        xs = [
+            hub.position[0]
+            for hub in self.hubs
+        ]
+
+        ys = [
+            hub.position[1]
+            for hub in self.hubs
+        ]
+
+        min_x = min(xs)
+        max_x = max(xs)
+
+        min_y = min(ys)
+        max_y = max(ys)
+
+        center_x = (
+            min_x + max_x
+        ) / 2
+
+        center_y = (
+            min_y + max_y
+        ) / 2
+
+        self.camera.set_center(
+            center_x,
+            center_y,
+        )
+
+        graph_width = max(
+            max_x - min_x,
+            1,
+        )
+
+        graph_height = max(
+            max_y - min_y,
+            1,
+        )
+
+        zoom_x = (
+            self.screen.WIDTH * 0.8
+            / graph_width
+        )
+
+        zoom_y = (
+            self.screen.HEIGHT * 0.8
+            / graph_height
+        )
+
+        self.camera.set_zoom(
+            min(
+                zoom_x,
+                zoom_y,
+            )
         )
