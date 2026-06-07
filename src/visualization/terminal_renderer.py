@@ -53,7 +53,8 @@ def render_terminal(
                 key = (state.from_hub, state.to_hub)
 
                 connection_occupancy[state.timestep][key] += 1
-                occupied = connection_occupancy[state.timestep][(state.from_hub, state.to_hub)]
+                occupied = connection_occupancy[state.timestep][(
+                    state.from_hub, state.to_hub)]
 
                 label = (f"{state.from_hub.name}->{state.to_hub.name}"
                          f"<{occupied}/{state.connection.max_link_capacity}>")
