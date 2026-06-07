@@ -27,4 +27,6 @@ def validate_connection_metadata(
 ) -> None:
 
     if raw_connection.max_link_capacity <= 0:
-        raise SemanticError(...)
+        raise SemanticError(
+            f"line {raw_connection.line}: max_link_capacity must be a positiv integer"
+        )
