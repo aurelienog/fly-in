@@ -271,21 +271,28 @@ A side panel provides:
 ## Resources
 
 Algorithms & theory
+
+https://www.geeksforgeeks.org/dsa/introduction-to-tree-data-structure/
+
+https://www.w3schools.com/dsa/dsa_theory_trees.php
+
+https://www.geeksforgeeks.org/dsa/graph-data-structure-and-algorithms/
+
+https://www.geeksforgeeks.org/dsa/dijkstras-shortest-path-algorithm-greedy-algo-7/
+
 A* Search Algorithm:
-https://en.wikipedia.org/wiki/A*_search_algorithm
-Multi-Agent Pathfinding (MAPF):
-https://movingai.com/benchmarks/mapf.html
-Space-time planning concepts:
-https://doi.org/10.1109/ICRA.2019.8794223
+https://www.geeksforgeeks.org/dsa/a-search-algorithm/
 
-### Pygame documentation
-https://www.pygame.org/docs/
-
-### Python references
-Dataclasses:
 https://docs.python.org/3/library/dataclasses.html
 
-### AI usage disclosure
+https://www.youtube.com/watch?v=4jyESQDrpls&list=LL&index=6&t=477s
+
+https://www.youtube.com/watch?v=UeZR3IzVbwM&t=875s&pp=ugMICgJmchABGAHKBRBjYnMgYWxnb3JpdGhtIGZy
+
+### Pygame documentation   
+https://www.pygame.org/docs/
+
+### AI usage
 
 Artificial intelligence was used in the following parts of this project:
 
