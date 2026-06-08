@@ -8,12 +8,30 @@ from ...domain import Drone, Network
 
 
 class Game:
+    """Main controller for the simulation playback and visualization.
+
+    This class orchestrates the full simulation lifecycle, including:
+        - Pygame event handling
+        - Time-based playback control
+        - Camera management and viewport fitting
+        - Rendering coordination
+        - State extraction per timestep
+
+    It acts as the central runtime loop that binds together the
+    simulation model and the rendering system.
+    """
 
     def __init__(
         self,
         network: Network,
         simulation: dict[Drone, list[State]],
     ):
+        """Initialize the simulation game controller.
+
+        Args:
+            network: The underlying network graph of hubs and connections.
+            simulation: Mapping from each drone to its timeline of states.
+        """
         self.network = network
         self.simulation = simulation
 
@@ -51,6 +69,7 @@ class Game:
         self._fit_camera_to_graph()
 
     def run(self):
+        """Run the main simulation loop until exit."""
         while self.running:
 
             self._handle_events()
@@ -81,6 +100,7 @@ class Game:
         pygame.quit()
 
     def _update_playback(self):
+        """Advance simulation time if playback is active."""
 
         if not self.playing:
             return
@@ -101,6 +121,7 @@ class Game:
                 self.current_timestep += 1
 
     def _handle_events(self):
+        """Process user input events (keyboard and window events)."""
 
         for event in pygame.event.get():
 
@@ -145,6 +166,14 @@ class Game:
         self,
         timestep,
     ):
+        """Extract latest known state of each drone at a given timestep.
+
+        Args:
+            timestep: Simulation time to evaluate.
+
+        Returns:
+            Mapping from drones to their most recent state up to that time.
+        """
         result = {}
 
         for drone, states in (
@@ -163,6 +192,14 @@ class Game:
         return result
 
     def _fit_camera_to_graph(self):
+        """Automatically center and scale camera to fit the network graph.
+
+        Computes the bounding box of all hubs and adjusts:
+            - camera center
+            - zoom level
+
+        This ensures the entire graph is visible within the viewport.
+        """
 
         if not self.hubs:
             return

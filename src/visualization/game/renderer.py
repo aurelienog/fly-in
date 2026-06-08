@@ -6,6 +6,20 @@ from ..colors import RenderColors, Color
 
 
 class Renderer:
+    """Handles all visual rendering of the drone simulation using Pygame.
+
+    This class is responsible for drawing all visual elements of the simulation,
+    including:
+
+        - Network connections (edges)
+        - Hub nodes
+        - Drones and their interpolated positions
+        - Simulation timestep overlay
+        - Information side panel (UI dashboard)
+
+    It acts as a pure rendering layer: it does not modify simulation state,
+    only visualizes the current snapshot of it.
+    """
     HUB_RADIUS = 22
     DRONE_RADIUS = 10
 
@@ -20,6 +34,18 @@ class Renderer:
         playing,
         info_panel_width
     ):
+        """Render a full simulation frame.
+
+        Args:
+            screen: Pygame surface used for drawing.
+            camera: Camera used to transform world → screen coordinates.
+            network: Graph structure containing hubs and connections.
+            drone_states: Current visible state of each drone.
+            timestep: Current simulation timestep.
+            max_timestep: Maximum timestep in the simulation.
+            playing: Whether the simulation is currently running.
+            info_panel_width: Width of the UI information panel.
+        """
         self._draw_connections(screen, camera, network.connections)
         self._draw_hubs(screen, camera, network.hubs)
         self._draw_drones(screen, camera, drone_states)
@@ -32,6 +58,7 @@ class Renderer:
         camera,
         connections,
     ):
+        """Draw all network connections as lines between hubs."""
         for connection in connections:
 
             a, b = connection.hubs
@@ -63,6 +90,7 @@ class Renderer:
         camera,
         hubs,
     ):
+        """Draw all hubs as colored circles with labels."""
         font = pygame.font.SysFont(
             None,
             22,
@@ -109,6 +137,7 @@ class Renderer:
         camera,
         drone_states,
     ):
+        """Draw drones at their current interpolated positions."""
         font = pygame.font.SysFont(
             None,
             18,
@@ -151,6 +180,7 @@ class Renderer:
         screen,
         timestep,
     ):
+        """Draw current timestep overlay."""
         font = pygame.font.SysFont(
             None,
             40,
@@ -171,6 +201,14 @@ class Renderer:
         self,
         state,
     ):
+        """Compute world position of a drone state.
+
+        Args:
+            state: Either a HubState or ConnectionState.
+
+        Returns:
+            (x, y) world coordinates representing the state position.
+        """
         if isinstance(
             state,
             HubState,
@@ -203,6 +241,7 @@ class Renderer:
         playing,
         info_panel_width
     ):
+        """Render the right-side information panel UI."""
         panel_x = (
             screen.get_width()
             - info_panel_width

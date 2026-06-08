@@ -1,7 +1,21 @@
 class Camera:
-    """Transforma coordenadas del mundo a coordenadas de pantalla."""
+    """Represents a 2D camera that maps world coordinates to screen space.
+
+    The camera is responsible for transforming simulation/world coordinates
+    into screen coordinates for rendering. It supports translation (center
+    position) and scaling (zoom level).
+
+    This class is typically used by rendering systems to visualize a
+    graph-based or spatial simulation.
+    """
 
     def __init__(self, viewport_width: int, viewport_height: int):
+        """Initialize the camera with a viewport size.
+
+        Args:
+            viewport_width: Width of the rendering viewport in pixels.
+            viewport_height: Height of the rendering viewport in pixels.
+        """
         self.viewport_width = viewport_width
         self.viewport_height = viewport_height
 
@@ -15,6 +29,18 @@ class Camera:
         world_x: float,
         world_y: float,
     ) -> tuple[int, int]:
+        """Convert world coordinates to screen coordinates.
+
+        Applies translation (camera position) and scaling (zoom level)
+        to map simulation space into pixel space.
+
+        Args:
+            world_x: X coordinate in world space.
+            world_y: Y coordinate in world space.
+
+        Returns:
+            A tuple (x, y) representing pixel coordinates on screen.
+        """
 
         screen_x = (
             (world_x - self.x) * self.zoom
@@ -33,6 +59,12 @@ class Camera:
         x: float,
         y: float,
     ):
+        """Set the world-space position of the camera center.
+
+        Args:
+            x: X coordinate of the new camera center.
+            y: Y coordinate of the new camera center.
+        """
         self.x = x
         self.y = y
 
@@ -40,65 +72,10 @@ class Camera:
         self,
         zoom: float,
     ):
+        """Set the camera zoom level.
+
+        Args:
+            zoom: Zoom factor. Must be greater than 0.
+        """
         if zoom > 0:
             self.zoom = zoom
-
-    def _fit_camera_to_graph(self):
-
-        if not self.network.hubs:
-            return
-
-        xs = [
-            hub.position[0]
-            for hub in self.network.hubs
-        ]
-
-        ys = [
-            hub.position[1]
-            for hub in self.network.hubs
-        ]
-
-        min_x = min(xs)
-        max_x = max(xs)
-
-        min_y = min(ys)
-        max_y = max(ys)
-
-        center_x = (min_x + max_x) / 2
-        center_y = (min_y + max_y) / 2
-
-        self.camera.set_center(
-            center_x,
-            center_y,
-        )
-
-        graph_width = max(
-            max_x - min_x,
-            1,
-        )
-
-        graph_height = max(
-            max_y - min_y,
-            1,
-        )
-
-        margin = 0.75
-
-        zoom_x = (
-            self.screen.WIDTH
-            * margin
-            / graph_width
-        )
-
-        zoom_y = (
-            self.screen.HEIGHT
-            * margin
-            / graph_height
-        )
-
-        self.camera.set_zoom(
-            min(
-                zoom_x,
-                zoom_y,
-            )
-        )
