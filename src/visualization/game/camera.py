@@ -1,9 +1,9 @@
 class Camera:
     """Transforma coordenadas del mundo a coordenadas de pantalla."""
 
-    def __init__(self, width: int, height: int):
-        self.width = width
-        self.height = height
+    def __init__(self, viewport_width: int, viewport_height: int):
+        self.viewport_width = viewport_width
+        self.viewport_height = viewport_height
 
         self.x = 0
         self.y = 0
@@ -18,12 +18,12 @@ class Camera:
 
         screen_x = (
             (world_x - self.x) * self.zoom
-            + self.width / 2
+            + self.viewport_width / 2
         )
 
         screen_y = (
             (world_y - self.y) * self.zoom
-            + self.height / 2
+            + self.viewport_height / 2
         )
 
         return int(screen_x), int(screen_y)
