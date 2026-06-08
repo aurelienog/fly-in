@@ -2,7 +2,7 @@ import pygame
 
 
 class Screen:
-    WIDTH = 1400
+    WIDTH = 1600
     HEIGHT = 900
     FPS = 60
 
