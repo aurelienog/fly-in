@@ -2,6 +2,11 @@ from enum import Enum
 
 
 class Color(Enum):
+    """Enumeration of the colors available for rendering and visualization.
+
+    Each member represents a named color that can be used throughout the
+    application for display, styling, or graphical representation.
+    """
     RAINBOW = "rainbow"
     GOLD = "gold"
     RED = "red"

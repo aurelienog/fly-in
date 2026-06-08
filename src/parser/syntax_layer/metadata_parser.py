@@ -2,6 +2,24 @@ from ...errors import InvalidSyntaxError
 
 
 def extract_metadata(line: str) -> tuple[str, str | None]:
+    """Extract optional metadata block from a raw input line.
+
+    Metadata is expected to be enclosed in square brackets `[ ... ]`
+    at the end of the line.
+
+    Args:
+        line: Raw input line potentially containing a metadata block.
+
+    Returns:
+        A tuple containing:
+            - The line content without metadata.
+            - The extracted metadata string, or None if no metadata is
+              present.
+
+    Raises:
+        InvalidSyntaxError: If the metadata block is malformed,
+            unbalanced, or incorrectly positioned.
+    """
     metadata = None
 
     has_open = "[" in line
@@ -30,6 +48,21 @@ def extract_metadata(line: str) -> tuple[str, str | None]:
 
 
 def parse_metadata(metadata: str | None) -> dict[str, str]:
+    """Parse a metadata string into a key-value dictionary.
+
+    Metadata items are expected in the form ``key=value`` separated by
+    whitespace.
+
+    Args:
+        metadata: Raw metadata string, or None if no metadata is present.
+
+    Returns:
+        A dictionary mapping metadata keys to values.
+
+    Raises:
+        InvalidSyntaxError: If an item is malformed, a key or value is
+            missing, or duplicate keys are found.
+    """
     if metadata is None:
         return {}
 

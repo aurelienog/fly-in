@@ -15,6 +15,24 @@ def parse_hub(
     hub_type: str,
     line_doc: int
 ) -> RawHub:
+    """Parse a hub definition from a raw text line.
+
+    The function extracts hub coordinates, name, type, and optional
+    metadata such as zone, color, and maximum number of drones.
+
+    Args:
+        content: Raw hub definition string.
+        hub_type: Type of hub (e.g., start, end, or regular hub).
+        line_doc: Line number in the source file for error reporting.
+
+    Returns:
+        The parsed raw hub representation.
+
+    Raises:
+        InvalidSyntaxError: If the hub definition has invalid syntax,
+            contains unknown metadata keys, uses invalid coordinates,
+            or includes malformed numeric values.
+    """
 
     line, metadata = extract_metadata(content)
 

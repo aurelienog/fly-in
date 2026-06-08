@@ -6,6 +6,20 @@ from ...errors import SemanticError
 
 
 def build_hub_map(raw: RawNetwork) -> tuple[dict[str, Hub], Hub | None, Hub | None]:
+    """Create hubs from a raw network description and index them by name.
+
+    While building the mapping, the function also identifies the start
+    and end hubs defined in the network.
+
+    Args:
+        raw: Raw network data containing hub definitions.
+
+    Returns:
+        A tuple containing:
+            - A mapping from hub names to hub instances.
+            - The start hub, or ``None`` if no start hub is defined.
+            - The end hub, or ``None`` if no end hub is defined.
+    """
     start_hub: Hub | None = None
     end_hub: Hub | None = None
     hub_map: dict[str, Hub] = {}
@@ -25,6 +39,21 @@ def build_hub_map(raw: RawNetwork) -> tuple[dict[str, Hub], Hub | None, Hub | No
 
 
 def build_network(raw: RawNetwork) -> Network:
+    """Build a complete network from its raw representation.
+
+    The function creates all hubs and connections and validates that
+    both a start hub and an end hub are defined.
+
+    Args:
+        raw: Raw network data describing hubs and connections.
+
+    Returns:
+        The constructed network.
+
+    Raises:
+        SemanticError: If the network does not define a start hub or an
+            end hub.
+    """
 
     hub_map, start_hub, end_hub = build_hub_map(raw)
 

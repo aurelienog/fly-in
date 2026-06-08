@@ -8,6 +8,14 @@ from .metadata_validator import (validate_hub_metadata,
 def validate_unique_hubs(
     hubs: list[RawHub],
 ) -> None:
+    """Validate that all hub names are unique.
+
+    Args:
+        hubs: Hub definitions to validate.
+
+    Raises:
+        SemanticError: If two or more hubs share the same name.
+    """
 
     seen: set[str] = set()
 
@@ -22,6 +30,17 @@ def validate_unique_hubs(
 def validate_start_end(
     hubs: list[RawHub],
 ) -> None:
+    """Validate the presence of exactly one start hub and one end hub.
+
+    The function also verifies that every hub role is valid.
+
+    Args:
+        hubs: Hub definitions to validate.
+
+    Raises:
+        SemanticError: If a hub role is invalid, if no start or end hub
+            is defined, or if multiple start or end hubs are defined.
+    """
 
     start_count = 0
     end_count = 0
@@ -59,6 +78,20 @@ def validate_start_end(
 def validate_connections(
     raw: RawNetwork,
 ) -> None:
+    """Validate all connection definitions in a network.
+
+    The validation ensures that connections reference existing hubs,
+    do not create self-connections, and are not duplicated.
+
+    Args:
+        raw: Raw network data containing hub and connection
+            definitions.
+
+    Raises:
+        SemanticError: If a connection references an unknown hub,
+            creates a self-connection, or duplicates an existing
+            connection.
+    """
 
     existing_hubs = {hub.name for hub in raw.hubs}
     seen_connections: set[frozenset[str]] = set()
@@ -95,6 +128,14 @@ def validate_connections(
 def validate_unique_coordinates(
     hubs: list[RawHub],
 ) -> None:
+    """Validate that all hubs have unique coordinates.
+
+    Args:
+        hubs: Hub definitions to validate.
+
+    Raises:
+        SemanticError: If two or more hubs share the same coordinates.
+    """
 
     seen: dict[tuple[int, int], int] = {}
 
@@ -111,6 +152,18 @@ def validate_unique_coordinates(
 
 
 def validate_network(raw: RawNetwork) -> None:
+    """Validate the semantic correctness of a raw network definition.
+
+    The validation includes drone count, hub definitions, hub
+    coordinates, start and end hubs, connection definitions, and
+    metadata consistency.
+
+    Args:
+        raw: Raw network data to validate.
+
+    Raises:
+        SemanticError: If any semantic validation rule is violated.
+    """
 
     if raw.nb_drones <= 0:
         raise SemanticError("First line error: Drone count must be positive")

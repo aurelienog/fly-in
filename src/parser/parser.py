@@ -9,6 +9,21 @@ from .models import RawNetwork
 
 
 def parse_simulation(source: str) -> tuple[Network, list[Drone]]:
+    """Parse a complete simulation from a raw text source.
+
+    The function performs the full pipeline required to transform an
+    input text into a validated simulation model. This includes tokenizing,
+    parsing, semantic validation, and construction of the final domain
+    objects.
+
+    Args:
+        source: Raw simulation input text.
+
+    Returns:
+        A tuple containing:
+            - The constructed and validated network.
+            - The list of initialized drones for the simulation.
+    """
 
     tokens: list[tuple[int, str, str]] = tokenize_lines(source)
     raw_network: RawNetwork = parse_raw_network(tokens)

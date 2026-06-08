@@ -5,6 +5,21 @@ from ...domain import Color
 
 
 def validate_hub_metadata(raw_hub: RawHub) -> None:
+    """Validate the metadata associated with a raw hub definition.
+
+    The validation checks that the zone type and color are supported and
+    that the maximum drone capacity is positive.
+
+    Args:
+        raw_hub: Raw hub data to validate.
+
+    Returns:
+        None.
+
+    Raises:
+        SemanticError: If the zone type is invalid, the color is
+            unsupported, or the maximum drone capacity is not positive.
+    """
     try:
         ZoneType(raw_hub.zone)
 
@@ -25,6 +40,17 @@ def validate_hub_metadata(raw_hub: RawHub) -> None:
 def validate_connection_metadata(
     raw_connection: RawConnection,
 ) -> None:
+    """Validate the metadata associated with a raw connection definition.
+
+    Args:
+        raw_connection: Raw connection data to validate.
+
+    Returns:
+        None.
+
+    Raises:
+        SemanticError: If the maximum link capacity is not positive.
+    """
 
     if raw_connection.max_link_capacity <= 0:
         raise SemanticError(

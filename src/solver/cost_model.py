@@ -6,52 +6,19 @@ import math
 
 @dataclass
 class CostModel:
-    """
-    Computes the traversal cost of a connection during route planning.
+    """Cost model used for route planning and pathfinding algorithms.
 
-    This class centralizes all routing heuristics and penalties used by
-    planning algorithms such as Dijkstra, Space-Time A*, or CBS.
+    This class centralizes all routing heuristics and cost calculations
+    used by planning algorithms such as Dijkstra, A*, or space-time
+    planners.
 
-    The returned value represents the "weight" of traversing a connection
-    at a given simulation timestep.
+    The cost model ensures that routing logic remains independent from
+    pathfinding algorithms by delegating all cost and heuristic
+    computations to a single consistent interface.
 
-    Lower values indicate more desirable routes.
-
-    The cost can combine multiple factors, for example:
-
-        - physical distance
-        - monetary/energy cost
-        - hub congestion
-        - link occupancy
-        - restricted zones penalties
-        - priority zones rewards
-        - dynamic simulation conditions
-
-    Purpose
-    -------
-    Keep routing logic independent from planning algorithms.
-
-    Algorithms should NOT implement their own cost formulas.
-    Instead, they should delegate cost computation to CostModel.
-
-    Example
-    -------
-    cost = model.edge_cost(
-        connection=conn,
-        timestep=12
-    )
-
-    Example formula
-    ---------------
-    total_cost =
-        distance_weight * connection.distance
-        + congestion_weight * connection.load
-        + restricted_penalty
-
-    Notes
-    -----
-    The cost function is intentionally configurable and may evolve
-    during experimentation or benchmarking.
+    Attributes:
+        (No stored attributes in this model; it acts as a stateless
+        computation component.)
     """
 
     def edge_cost(
@@ -59,56 +26,20 @@ class CostModel:
         connection: Connection,
         target: Hub,
     ):
-        """
-        Computes the traversal cost of using a connection at a specific
-        simulation timestep.
+        """Compute the traversal cost of using a connection.
 
-        If timestep is provided, dynamic/time-dependent penalties
-        may be applied.
+        The cost represents the "weight" of moving through a connection
+        toward a target hub. It may include static and dynamic factors
+        such as distance, congestion, and zone penalties.
 
-        Parameters
-        ----------
-        connection : Connection
-            The network edge being evaluated.
+        Args:
+            connection: The network connection being evaluated.
+            target: The destination hub reached through the connection.
 
-        timestep : int
-            Current simulation time.
-
-            Useful for time-dependent costs such as:
-                - congestion
-                - reservations
-                - dynamic penalties
-                - traffic scheduling
-
-        Returns
-        -------
-        float
-
-            Non-negative traversal weight.
-
-            Lower values represent cheaper / preferred routes.
-
-            Higher values represent expensive, congested,
-            risky, or restricted routes.
-
-        Notes
-        -----
-        The returned value is consumed directly by pathfinding algorithms.
-
-        Typical components:
-
-            base_distance
-            + travel_cost
-            + congestion_penalty
-            + restriction_penalty
-            - priority_bonus
-
-        Example
-        -------
-        return (
-            connection.get_distance()
-            + 10 * connection.current_load
-        )
+        Returns:
+            A non-negative traversal cost. Lower values indicate more
+            desirable routes. Returns ``math.inf`` if the target hub
+            is not traversable.
         """
         cost = (
             connection.get_distance()
@@ -129,32 +60,24 @@ class CostModel:
             cost *= 0.9
 
         return cost
-        # cost: int | float = connection.get_cost(target)
-
-        # if timestep is not None:
-
-        #     # future logic
-        #     # reservation_table lookup
-        #     # congestion prediction
-        #     # dynamic penalties
-
-        #     pass
-
-        # return cost
 
     def heuristic(
         self,
         current_hub: Hub,
         target_hub: Hub
     ) -> float:
-        """
-        Estimates the remaining cost from a node to the goal.
+        """Estimate the remaining cost from a hub to the target.
 
-        Used by heuristic planners such as A*.
+        This heuristic is used by informed search algorithms such as A*.
+        It provides an optimistic estimate of the remaining traversal
+        cost based on geometric distance.
 
-        Returns an optimistic approximation of the remaining route cost.
+        Args:
+            current_hub: The current position in the search.
+            target_hub: The goal hub.
 
-        Lower estimates improve optimality guarantees.
+        Returns:
+            A heuristic cost estimate. Always non-negative.
         """
 
         dx = (current_hub.position[0] - target_hub.position[0])

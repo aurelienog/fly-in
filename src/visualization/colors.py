@@ -2,6 +2,18 @@ from ..domain import Color
 
 
 class RenderColors:
+    """Utility class that maps abstract color definitions to rendering
+    formats for different output systems.
+
+    This class provides:
+
+        - ANSI escape codes for terminal rendering
+        - RGB values for graphical rendering (e.g., Pygame)
+        - Utility functions for rainbow-style color effects
+
+    It acts as a centralized bridge between domain-level colors and
+    presentation-layer color systems.
+    """
 
     RAINBOW_COLORS = [
         Color.RED,
@@ -55,6 +67,14 @@ class RenderColors:
 
     @classmethod
     def ANSI_rainbow(cls, text: str) -> str:
+        """Render a string using a cycling ANSI rainbow color pattern.
+
+        Args:
+            text: Input string to colorize.
+
+        Returns:
+            A string decorated with ANSI escape codes.
+        """
         return "".join(
             cls.ANSI[
                 cls.RAINBOW_COLORS[i % len(cls.RAINBOW_COLORS)]
@@ -64,6 +84,18 @@ class RenderColors:
 
     @classmethod
     def rainbow_color_at(cls, x: int, y: int):
+        """Return a deterministic rainbow color based on grid position.
+
+        This function is typically used for visualizing spatial patterns
+        in terminal or graphical renderers.
+
+        Args:
+            x: X coordinate.
+            y: Y coordinate.
+
+        Returns:
+            An RGB tuple representing the selected color.
+        """
         colors = [
             cls.PYGAME[Color.RED],
             cls.PYGAME[Color.ORANGE],

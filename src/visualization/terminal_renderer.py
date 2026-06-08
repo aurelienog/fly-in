@@ -7,6 +7,20 @@ from collections import defaultdict
 
 def render_terminal(
         solution: dict[Drone, list[State]]) -> None:
+    """Render a space-time simulation solution in the terminal.
+
+    The function visualizes drone movements over time by grouping state
+    transitions into timesteps and displaying occupancy information for
+    hubs and connections. It also applies ANSI coloring for improved
+    readability in terminal output.
+
+    Args:
+        solution: Mapping from each drone to its ordered list of
+            space-time states representing its trajectory.
+
+    Returns:
+        None. The function prints a formatted timeline to stdout.
+    """
 
     turns: dict[int, list[str]] = defaultdict(list)
     previous_location: dict[Drone, object] = {}
