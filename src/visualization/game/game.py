@@ -8,6 +8,7 @@ from ...domain import Drone, Network
 
 
 class Game:
+
     def __init__(
         self,
         network: Network,
@@ -21,8 +22,9 @@ class Game:
 
         self.screen = Screen()
 
+        self.info_panel_width = 300
         self.camera = Camera(
-            self.screen.WIDTH,
+            self.screen.WIDTH - self.info_panel_width,
             self.screen.HEIGHT,
         )
 
@@ -69,6 +71,9 @@ class Game:
                 self.network,
                 current_states,
                 self.current_timestep,
+                self.max_timestep,
+                self.playing,
+                self.info_panel_width
             )
 
             self.screen.update()
@@ -201,13 +206,29 @@ class Game:
             1,
         )
 
+        viewport_width = (
+            self.screen.WIDTH
+            - self.info_panel_width
+        )
+
+        viewport_height = (
+            self.screen.HEIGHT
+        )
+
+        #
+        # margen alrededor del grafo
+        #
+        margin_factor = 0.90
+
         zoom_x = (
-            self.screen.WIDTH * 0.8
+            viewport_width
+            * margin_factor
             / graph_width
         )
 
         zoom_y = (
-            self.screen.HEIGHT * 0.8
+            viewport_height
+            * margin_factor
             / graph_height
         )
 
