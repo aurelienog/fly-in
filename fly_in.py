@@ -7,12 +7,22 @@ import sys
 
 def main() -> None:
 
-    if len(sys.argv) != 2:
-        print("Usage: ./fly_in <map_file>")
+    if len(sys.argv) < 2:
+        print(
+            "\033[31mMap is required\nUsage: ./fly_in <map_file>\033[0m")
+        sys.exit(1)
+    elif len(sys.argv) == 2:
+        render = None
+    elif len(sys.argv) == 3:
+        render = sys.argv[2]
+    else:
+        print(
+            "Too many arguments"
+            "Usage: ./fly_in <map_file>")
         sys.exit(1)
 
     try:
-        run_app(sys.argv[1])
+        run_app(sys.argv[1], render)
 
     except ParseError as exc:
         print(f"\033[31m[PARSE ERROR] {exc} \033[0m")
@@ -36,6 +46,10 @@ def main() -> None:
 
     except OSError as exc:
         print("\033[31m[ERROR] system error:\033[0m", exc)
+        sys.exit(1)
+
+    except ValueError as exc:
+        print(f"\033[31m[PARSE ERROR] {exc} \033[0m")
         sys.exit(1)
 
 
