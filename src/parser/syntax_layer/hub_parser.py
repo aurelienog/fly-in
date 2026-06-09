@@ -13,8 +13,27 @@ ALLOWED_HUB_METADATA = {
 def parse_hub(
     content: str,
     hub_type: str,
-    line_doc: int
+    line_doc: int,
+    nb_drones: int
 ) -> RawHub:
+    """Parse a hub definition from a raw text line.
+
+    The function extracts hub coordinates, name, type, and optional
+    metadata such as zone, color, and maximum number of drones.
+
+    Args:
+        content: Raw hub definition string.
+        hub_type: Type of hub (e.g., start, end, or regular hub).
+        line_doc: Line number in the source file for error reporting.
+
+    Returns:
+        The parsed raw hub representation.
+
+    Raises:
+        InvalidSyntaxError: If the hub definition has invalid syntax,
+            contains unknown metadata keys, uses invalid coordinates,
+            or includes malformed numeric values.
+    """
 
     line, metadata = extract_metadata(content)
 
@@ -42,14 +61,28 @@ def parse_hub(
         x_int = int(x)
         y_int = int(y)
 
-        max_drones = int(
-            meta.get("max_drones", "1")
-        )
-
     except ValueError:
         raise InvalidSyntaxError(
             f"line {line_doc}: x, y and max_drones must be integers"
         )
+
+    value = meta.get("max_drones")
+
+    if value is None:
+        max_drones = None
+    else:
+        try:
+            max_drones = int(value)
+        except ValueError:
+            raise InvalidSyntaxError(
+                f"line {line_doc}: max_drones must be an integer"
+            )
+
+    if hub_type == "start_hub" and max_drones is None:
+        max_drones = nb_drones
+
+    if max_drones is None:
+        max_drones = 1
 
     return RawHub(
         line=line_doc,
@@ -59,6 +92,6 @@ def parse_hub(
         y=y_int,
 
         zone=meta.get("zone", "normal"),
-        color=meta.get("color"),
+        color=meta.get("color", "default"),
         max_drones=max_drones,
     )

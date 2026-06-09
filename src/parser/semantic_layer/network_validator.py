@@ -5,19 +5,17 @@ from .metadata_validator import (validate_hub_metadata,
                                  validate_connection_metadata)
 
 
-def validate_hub_role(raw_hub: RawHub) -> None:
-
-    try:
-        HubRole(raw_hub.hub_type)
-
-    except ValueError as exc:
-        raise SemanticError(f"line {raw_hub.line}: invalid hub role: {raw_hub.hub_type}"
-                            ) from exc
-
-
 def validate_unique_hubs(
     hubs: list[RawHub],
 ) -> None:
+    """Validate that all hub names are unique.
+
+    Args:
+        hubs: Hub definitions to validate.
+
+    Raises:
+        SemanticError: If two or more hubs share the same name.
+    """
 
     seen: set[str] = set()
 
@@ -29,9 +27,21 @@ def validate_unique_hubs(
         seen.add(hub.name)
 
 
-def validate_start_end(
+def validate_hubs_role(
     hubs: list[RawHub],
+    network: RawNetwork
 ) -> None:
+    """Validate the presence of exactly one start hub and one end hub.
+
+    The function also verifies that every hub role is valid.
+
+    Args:
+        hubs: Hub definitions to validate.
+
+    Raises:
+        SemanticError: If a hub role is invalid, if no start or end hub
+            is defined, or if multiple start or end hubs are defined.
+    """
 
     start_count = 0
     end_count = 0
@@ -40,9 +50,18 @@ def validate_start_end(
     end_lines = []
 
     for hub in hubs:
-        role = HubRole(hub.hub_type)
+        try:
+            role = HubRole(hub.hub_type)
+        except ValueError as exc:
+            raise SemanticError(
+                f"line {hub.line}: invalid hub role: {hub.hub_type}"
+            ) from exc
 
         if role is HubRole.START:
+            if hub.max_drones < network.nb_drones:
+                raise SemanticError(
+                    f"line {hub.line}: start capacity is too low for"
+                    f" {network.nb_drones} drones")
             start_count += 1
             start_lines.append(hub.line)
 
@@ -51,17 +70,33 @@ def validate_start_end(
             end_lines.append(hub.line)
 
     if start_count != 1:
-        raise SemanticError(f"multiple starts: lines {start_lines}: Network must"
-                            " contain exactly one start_hub")
+        raise SemanticError(
+            f"found {start_count} start_hub(s), expected exactly one"
+            )
 
     if end_count != 1:
-        raise SemanticError(f"multiple ends: lines {end_lines}: Network must"
-                            " contain exactly one end_hub")
+        raise SemanticError(
+            f"found {end_count} end_hub(s), expected exactly one"
+            )
 
 
 def validate_connections(
     raw: RawNetwork,
 ) -> None:
+    """Validate all connection definitions in a network.
+
+    The validation ensures that connections reference existing hubs,
+    do not create self-connections, and are not duplicated.
+
+    Args:
+        raw: Raw network data containing hub and connection
+            definitions.
+
+    Raises:
+        SemanticError: If a connection references an unknown hub,
+            creates a self-connection, or duplicates an existing
+            connection.
+    """
 
     existing_hubs = {hub.name for hub in raw.hubs}
     seen_connections: set[frozenset[str]] = set()
@@ -77,6 +112,11 @@ def validate_connections(
                 f"line {connection.line}: Unknown hub in connection: {connection.b}"
             )
 
+        if connection.a == connection.b:
+            raise SemanticError(
+                f"line {connection.line}: self-connections are not allowed"
+            )
+
         key = frozenset({
             connection.a,
             connection.b,
@@ -90,13 +130,52 @@ def validate_connections(
         seen_connections.add(key)
 
 
+def validate_unique_coordinates(
+    hubs: list[RawHub],
+) -> None:
+    """Validate that all hubs have unique coordinates.
+
+    Args:
+        hubs: Hub definitions to validate.
+
+    Raises:
+        SemanticError: If two or more hubs share the same coordinates.
+    """
+
+    seen: dict[tuple[int, int], int] = {}
+
+    for hub in hubs:
+        coords = (hub.x, hub.y)
+
+        if coords in seen:
+            raise SemanticError(
+                f"line {hub.line}: coordinates {coords} "
+                f"already used on line {seen[coords]}"
+            )
+
+        seen[coords] = hub.line
+
+
 def validate_network(raw: RawNetwork) -> None:
+    """Validate the semantic correctness of a raw network definition.
+
+    The validation includes drone count, hub definitions, hub
+    coordinates, start and end hubs, connection definitions, and
+    metadata consistency.
+
+    Args:
+        raw: Raw network data to validate.
+
+    Raises:
+        SemanticError: If any semantic validation rule is violated.
+    """
 
     if raw.nb_drones <= 0:
         raise SemanticError("First line error: Drone count must be positive")
 
     validate_unique_hubs(raw.hubs)
-    validate_start_end(raw.hubs)
+    validate_unique_coordinates(raw.hubs)
+    validate_hubs_role(raw.hubs, raw)
     validate_connections(raw)
 
     for raw_hub in raw.hubs:

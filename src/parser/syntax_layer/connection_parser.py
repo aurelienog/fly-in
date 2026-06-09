@@ -7,6 +7,23 @@ def parse_connection(
     content: str,
     line_doc: int
 ) -> RawConnection:
+    """Parse a connection definition from a text line.
+
+    The parser extracts the endpoint hub names and any supported
+    connection metadata.
+
+    Args:
+        content: Raw text containing the connection definition.
+        line_doc: Line number in the source document.
+
+    Returns:
+        The parsed connection definition.
+
+    Raises:
+        InvalidSyntaxError: If the connection definition is malformed,
+            contains unsupported metadata, references invalid hub names,
+            or includes metadata values with an invalid format.
+    """
 
     ALLOWED_CONNECTION_METADATA = {
         "max_link_capacity",

@@ -1,22 +1,41 @@
 import heapq
 from itertools import count
 
-from ..cost.cost_model import CostModel
-from ..simulation.reservation_table import ReservationTable
+from .cost_model import CostModel
+from .reservation_table import ReservationTable
 
-from ..models import (
+from .models import (
     SpaceTimeState,
     EdgeTimeInterval,
 )
 
-from ...domain import (
+from ..domain import (
     Hub,
 )
 
 
 class SpaceTimeAStarPlanner():
+    """Space-time A* planner for multi-agent pathfinding.
+
+    This planner computes collision-free paths in a time-expanded graph
+    where nodes represent (hub, timestep) states. It integrates:
+
+        - A* search over space-time states
+        - Heuristic guidance via geometric distance
+        - Node and edge reservation constraints
+        - Waiting and movement actions
+
+    The planner is designed for multi-agent systems where agents must
+    avoid both spatial and temporal conflicts.
+    """
 
     def __init__(self, reservation_table: ReservationTable) -> None:
+        """Initialize the planner with a shared reservation table.
+
+        Args:
+            reservation_table: Global structure used to track occupied
+                nodes and edges over time.
+        """
         self.reservation_table = reservation_table
 
     def plan(
@@ -24,6 +43,20 @@ class SpaceTimeAStarPlanner():
         start: Hub,
         goal: Hub,
     ) -> list[SpaceTimeState]:
+        """Compute a collision-free space-time path from start to goal.
+
+        The algorithm performs A* search over a time-expanded graph.
+        It considers both movement and waiting actions, while enforcing
+        constraints from the reservation table.
+
+        Args:
+            start: Starting hub.
+            goal: Target hub.
+
+        Returns:
+            A list of space-time states representing the path from start
+            to goal. Returns an empty list if no valid path is found.
+        """
 
         cost_model = CostModel()
         counter = count()
@@ -159,6 +192,15 @@ class SpaceTimeAStarPlanner():
         ],
         current: SpaceTimeState | None
     ) -> list[SpaceTimeState]:
+        """Reconstruct the path from goal to start.
+
+        Args:
+            came_from: Mapping of each state to its predecessor.
+            current: Final state reached by the search.
+
+        Returns:
+            Ordered list of states from start to goal.
+        """
 
         path: list[
             SpaceTimeState
