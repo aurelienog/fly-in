@@ -1,17 +1,8 @@
 from ..models import RawHub
-from ...domain import Hub, HubRole, ZoneType, Color
+from ...domain import Hub, HubRole, ZoneType
 
 
 def build_hub(raw: RawHub) -> Hub:
-    """Create a hub from its raw representation.
-
-    Args:
-        raw: Raw hub data containing the hub properties and
-            configuration.
-
-    Returns:
-        The constructed hub instance.
-    """
     if raw.hub_type == HubRole.START:
         hub_role = HubRole.START
     elif raw.hub_type == HubRole.END:
@@ -32,5 +23,5 @@ def build_hub(raw: RawHub) -> Hub:
 
         max_drones=raw.max_drones,
 
-        color=Color(raw.color)
+        color=raw.color
     )

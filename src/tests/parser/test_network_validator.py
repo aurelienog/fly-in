@@ -8,6 +8,7 @@ from src.parser.models import (
     )
 
 from src.parser.semantic_layer.network_validator import (
+    validate_hub_role,
     validate_unique_hubs,
     validate_start_end,
     validate_connections,

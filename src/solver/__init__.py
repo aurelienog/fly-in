@@ -1,8 +1,6 @@
-from .models import SpaceTimeState, EdgeTimeInterval
-from .planner import SpaceTimeAStarPlanner
-from .reservation_table import ReservationTable
-from .scheduler import Scheduler
+from .simulation import Scheduler, ReservationTable
+from .planners import SpaceTimeAStarPlanner, DijkstraPlanner
+from .models import SpaceTimeState
 
-__all__ = ["Scheduler", "ReservationTable",
-           "SpaceTimeState", "EdgeTimeInterval",
-           "SpaceTimeAStarPlanner"]
+__all__ = ["Scheduler", "ReservationTable", "SpaceTimeState",
+           "SpaceTimeAStarPlanner", "DijkstraPlanner"]

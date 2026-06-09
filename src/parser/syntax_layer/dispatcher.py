@@ -6,26 +6,6 @@ from ..models import RawNetwork, RawHub, RawConnection
 
 
 def parse_raw_network(tokens: list[tuple[int, str, str]]) -> RawNetwork:
-    """Parse a tokenized network definition into a raw network model.
-
-    The parser processes the drone count declaration, hub definitions,
-    and connection definitions, and assembles them into a raw network
-    representation.
-
-    Args:
-        tokens: Sequence of tokenized input lines represented as
-            ``(line_number, keyword, content)`` tuples.
-
-    Returns:
-        The parsed raw network.
-
-    Raises:
-        ParseError: If the input is empty, the first line does not define
-            the drone count, a keyword is duplicated where not allowed,
-            or an unknown keyword is encountered.
-        InvalidSyntaxError: If a hub or connection definition contains
-            invalid syntax.
-    """
 
     hubs: list[RawHub] = []
     connections: list[RawConnection] = []

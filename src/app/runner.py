@@ -1,19 +1,10 @@
-from .file_loader import load_simulation
+from ..io import load_simulation, render_drone_timeline
 from ..solver import SpaceTimeAStarPlanner, ReservationTable, Scheduler
-from ..visualization import TimelineExpander, render_terminal, Game
+from ..visualization import TimelineExpander
 
 
 def run_app(filename: str) -> None:
-    """Run the drone simulation application from a simulation file.
 
-    Args:
-        filename: Path to the file containing the simulation definition.
-
-    Returns:
-        None. This function executes the complete simulation workflow,
-        including loading, planning, scheduling, visualization, and
-        terminal rendering.
-    """
     network, drones = load_simulation(filename)
 
     reservation_table = ReservationTable()
@@ -22,10 +13,9 @@ def run_app(filename: str) -> None:
     solution = scheduler.schedule(drones, network)
 
     expander = TimelineExpander()
-    simulation = {
+    timeline_solution = {
         drone: expander.expand(path)
         for drone, path in solution.items()
     }
-    game = Game(network, simulation)
-    game.run()
-    render_terminal(simulation)
+
+    render_drone_timeline(timeline_solution)
