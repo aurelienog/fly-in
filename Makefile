@@ -1,6 +1,6 @@
 NAME = fly_in
 VENV = .venv
-PYTHON = $(VENV)/bin/python3
+PYTHON = $(VENV)/bin/python3.10
 PIP = $(VENV)/bin/pip
 
 # --------------------------
@@ -14,7 +14,7 @@ all: install
 # --------------------------
 
 venv:
-	python3 -m venv $(VENV)
+	python3.10 -m venv $(VENV)
 
 # --------------------------
 # INSTALL
@@ -29,7 +29,7 @@ install: venv
 # --------------------------
 
 run:
-	PYTHONPATH=. $(PYTHON) -m $(NAME) config.txt
+	PYTHONPATH=. $(PYTHON) -m $(NAME) 01_the_impossible_dream.txt
 
 debug:
 	PYTHONPATH=. $(PYTHON) -m pdb -m $(NAME) config.txt
