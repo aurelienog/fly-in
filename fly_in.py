@@ -18,7 +18,7 @@ def main() -> None:
     else:
         print(
             "Too many arguments"
-            "Usage: ./fly_in <map_file>")
+            "Usage: ./fly_in <map_file> [visual|pygame]\n")
         sys.exit(1)
 
     try:
@@ -49,7 +49,7 @@ def main() -> None:
         sys.exit(1)
 
     except ValueError as exc:
-        print(f"\033[31m[PARSE ERROR] {exc} \033[0m")
+        print(f"\033[31m[CONFIG ERROR] {exc} \033[0m")
         sys.exit(1)
 
 
