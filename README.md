@@ -7,78 +7,162 @@
 This project is a space-time simulation of multiple drones navigating through a network of interconnected hubs.
 
 The system models a graph-based world where:
-- Nodes represent hubs with spatial coordinates and movement constraints
-- Edges represent bidirectional connections with capacity limits
-- Drones are agents that must travel from a start hub to a target hub
+- **Nodes (hubs)** represent spatial locations with constraints
+- **Edges (connections)** represent bidirectional links with capacity limits
+- **Drones** are agents that must travel from a start hub to a target hub
 
-The main objective is to compute **collision-free paths for multiple drones** while respecting:
-- Node capacity constraints (maximum drones per hub)
+### Objective
+
+Compute **collision-free paths for multiple drones** while respecting:
+
+- Node capacity constraints (maximum drones per hub per timestep)
 - Edge capacity constraints (maximum drones per connection per timestep)
-- Temporal constraints (space-time collisions)
+- Temporal constraints (avoiding space-time collisions)
 
-The simulation includes a full visualization layer built with Pygame, showing:
-- Network structure
-- Drone movement over time
-- Animated transitions between hubs
-- A playback system with time controls
+### Architecture Overview
+
+The project is organized as a pipeline that transforms a map definition into a complete simulation timeline.
+
+This timeline can then be visualized using different rendering modes.
+
+```text
+Map Input
+    │
+    ▼
+Parser & Validation
+    │
+    ▼
+Domain Construction
+    │
+    ▼
+Simulation Engine
+(Space-Time A* + Reservations)
+    │
+    ▼
+Simulation Timeline
+(list of states per timestep)
+    │
+    ├──────────────► Terminal Renderer
+    │                 • Compact output
+    │                 • Detailed output
+    │                 • Debug-friendly
+    │
+    └──────────────► Pygame Renderer
+                      • Graph visualization
+                      • Animated drones
+                      • Playback controls
+```
+Both renderers consume this timeline without influencing pathfinding or scheduling decisions.
+
+### Visualization Modes
+
+The simulation includes two options:
+
+**Terminal Renderer**  
+Displays step-by-step drone movement per timestep.
+
+Example:
+```
+D0-waypoint1
+D0-waypoint2 D1-waypoint1
+D0-goal D1-waypoint2
+D1-goal
+```
+
+**Pygame interactive mode**  
+Provides a real-time visualization with:
+
+- Network graph rendering
+- Playback controls (play/pause/step)
+- Time navigation system
 
 ---
 
 ## Instructions
- about compilation,
-installation, and/or execution.
+
 ### Requirements
 - Python 3.10+
 - pygame
 - pytest
 
-Install dependencies:
+### Installation
 
+Create virtual environment and install dependencies:
+
+```bash
+make install
+```
+
+Or manually:
 ```bash
 pip install pygame
 ```
-### Running the simulation
 
-Run the project by providing a map file:
-python3 main.py <map_file>
+### Execution
 
-Example:
+Run the simulation with:
+
 ```bash
-python3 main.py maps/sample.txt
+make run MAP=maps/sample.txt RENDER=pygame 
+```
+
+Or directly:
+
+```bash
+python3 fly_in.py maps/sample.txt visual
+```
+
+Render options
+- `visual` → terminal renderer
+- `pygame` → interactive renderer
+
+### Makefile commands
+
+```
+make venv         # Create virtual environment
+make install      # Install dependencies in the venv
+make run          # Run simulation
+make debug        # Debug with pdb
+make clean        # Remove caches
+make clean-venv   # Remove venv
+make lint         # Run flake8 + mypy
+make lint-strict  # Strict type checking
 ```
 
 ## Algorithm & Implementation Strategy
 
 ### 1. Parsing pipeline
 
-The input file is processed in multiple stages:
-
 #### A. Tokenization
-Lines are converted into ```(line_number, keyword,content)``` tokens
 
-Comments and empty lines are ignored
+Input file is converted into:
+
+```text
+(line_number, keyword, content)
+```
+
+Comments and empty lines are ignored.
 
 #### B. Parsing
 
-Each entity type is parsed independently:
+Entities are parsed independently:
 - hubs
 - connections
 - number of drones
-- Metadata is extracted using bracket-based parsing ```[key=value]```
+- Metadata ```[key=value]``` syntax
 
 #### C. Validation layer
 
-The system enforces:
-- Unique hub names
-- Unique coordinates
+Ensures:
+- Unique hub names and coordinates
 - Exactly one start hub and one end hub
-- Valid zones, colors, and capacities
+- Valid metadata: zones, colors, capacities
 - Valid connections (no duplicates, no self-loops)
-- Reachability between start and end
+- Reachability from start to end
 
 #### D. Domain construction
 
-Raw data is converted into domain objects:
+Raw input is transformed into domain objects:
 - Network
 - Hub
 - Connection
@@ -92,36 +176,27 @@ The routing system uses a Space-Time A* algorithm:
 
 A state is defined as: ```(hub, timestep)```
 
-This allows modeling:
-
-- movement over time
-- waiting actions
-- collision avoidance
+This enables:
+- Movement over time
+- Waiting actions
+- Collision avoidance
 
 **Search strategy**
-
-The algorithm uses:
 
 - A* search over a time-expanded graph
 - Priority queue ordered by f = g + h
 - Heuristic based on Euclidean distance
 
-**Constraints enforced**
+**Constraints**
 
-At each expansion step:
-
-- Node constraint:
-- max drones per hub per timestep
-- Edge constraint:
-- max link capacity per timestep interval
-- Zone constraints:
-- blocked hubs are not traversable
-- restricted zones increase cost
-- priority zones reduce cost
+At each step:
+- Node capacity limits
+- Edge capacity limits
+- Zone restrictions (blocked / priority / cost modifiers)
 
 **Reservation system**
 
-A global ReservationTable is used to prevent conflicts:
+A global Reservation Table prevents collisions:
 
 - ```node_reservations```: occupancy per (hub, timestep)
 - ```edge_reservations```: occupancy per (connection, time interval)
@@ -132,108 +207,126 @@ Once a drone path is computed, it is immediately reserved, making later drones a
 
 Drones are processed sequentially:
 
-1. Plan path with A*
+1. Compute path with A*
 2. Reserve path in time-space
 3. Repeat for next drone
 
 This produces a greedy prioritized multi-agent schedule.
 
-
 ### 3. Cost model design
 
 Routing costs are centralized in CostModel, which defines:
 
-- geometric distance
-- hub movement cost
-- congestion penalty
-- zone modifiers
+- Euclidean distance
+- Movement cost
+- Congestion penalty
+- Zone modifiers
 
-This avoids coupling pathfinding logic with heuristic tuning.
+Cost logic is decoupled from the planner to allow experimentation without modifying A*.
 
-Key design choice:
+## Performance, Scalability
 
->Cost computation is fully separated from the planner to allow experimentation without modifying A* logic.
+### Complexity
 
-## Performance, Scalability & Complexity Analysis
+- Each drone runs A*
+- Total cost scales linearly with number of drones
+- State space grows with time horizon
 
-### How efficient is the algorithm?
+### Works well when:
 
-The core algorithm is a **Space-Time A\*** planner combined with a **reservation-based scheduling system**.
+- Sparse graphs
+- Moderate drone count (tens–low hundreds)
+- Low congestion
 
-Efficiency depends mainly on:
-- number of hubs
-- number of connections
-- time horizon explored
-- number of drones
+### Degrades when:
+- High contention on hubs/edges
+- Dense graphs
+- Long time horizons
 
-Each drone is planned sequentially using A*, so the total cost scales linearly with the number of agents, but each search is constrained by previously reserved paths.
-
-### Can it scale to a large number of drones?
-
-Yes, but with important constraints:
-
-#### Works well when:
-- sparse graph (low connection density)
-- moderate number of drones (tens to low hundreds)
-- short-to-medium time horizons
-- limited congestion
-
-#### Degrades when:
-- many drones compete for same hubs/edges
-- dense graphs increase branching factor
-- long time horizons expand state space
-- high contention forces repeated re-routing
+### Limitation
 
 Because the system is **sequentially greedy**, later drones may experience:
 - longer paths
 - increased waiting times
 - higher computational cost due to congestion
 
-A fully optimal multi-agent solution would require:
-- CBS (Conflict-Based Search), or
-- WHCA*, or
-- parallel planning strategies
+More advanced alternatives:
 
-### Are paths recalculated or cached?
+- CBS (Conflict-Based Search)
+- WHCA*
+- Parallel multi-agent planning
 
-- Paths are **NOT globally cached**
-- Each drone is planned independently
-- However, the system uses a **reservation table as implicit state memory**
+### Caching Strategy
 
-#### What is cached:
+❌ No global path caching  
+✔️ Reservation table acts as implicit memory
+
+Stored:
 - Node occupancy over time
 - Edge occupancy over time
 
-#### What is recalculated:
-- Full A* search per drone
-- No reuse of previous shortest-path trees
+Recomputed:
+- Full A* per drone
 
-This design prioritizes:
-> correctness under constraints over global optimal reuse
+## Rendering System
 
-## Visualization Features
+The visualization layer is designed to improve understanding of the simulation by making it possible to observe:
+- A* search behavior (indirectly through movement patterns)
+- Scheduling decisions between drones
+- Congestion dynamics
+- Emergent routing inefficiencies
 
-The visualization layer significantly improves understanding of the simulation. It transforms an abstract algorithm into:
+The project supports **two distinct rendering modes**:
+- **Terminal renderer (CLI)**
+- **Pygame interactive renderer (GUI)**
 
-> a **human-readable space-time system**
+Both visualize the same simulation state, but with different levels of detail and interactivity.
 
-making it possible to observe:
-- A* search behavior indirectly
-- scheduling decisions
-- congestion dynamics
-- emergent routing inefficiencies
+### Terminal Renderer
 
-This is especially valuable for debugging multi-agent pathfinding systems, where correctness is not enough without interpretability.
+The terminal renderer provides a **step-by-step textual simulation trace**.
 
-The project includes a real-time visualization engine using Pygame. ANNNNNNNND TODO
+Each timestep is printed as a single line, showing all drone movements at that moment.
+
+Each movement must follow the format: D<ID>-<zone>, or D<ID>-<connection>
+
+**Output format:**
+
+By default, a simplified representation is used:
+
+D<ID>-<hub>
+D<ID>-<connection>
+
+Example:
+```
+D0-waypoint1
+D0-waypoint2 D1-waypoint1
+D0-goal D1-waypoint2
+D1-goal
+```
+
+A more detailed and colored representation is printed with: ``` make run RENDER=visual``` or ```fly_in.py maps/sample.txt visual```
+
+Representation:
+T<turn-number>: D<ID>-<zone> <occupation/capacity>, or D<ID>-<connection><occupation/capacity>
+
+Example:
+```
+T001: D0-waypoint1<1/1>
+T002: D0-waypoint2<1/1> D1-waypoint1<1/1>
+T003: D0-goal<1/1> D1-waypoint2<1/1>
+T004: D1-goal<1/1>
+```
+
+### Pygame Renderer
 
 **1. World rendering**
 
-The renderer displays:
+The simulation world is drawn as a graph:
 
 - ```Hubs``` as colored circles
 - ```Connections``` as edges between hubs
-- ```Drones``` as moving entities with interpolation
+- ```Drones``` as animated agents moving along planned paths
 
 **2. Camera system**
 
@@ -241,9 +334,12 @@ The camera supports:
 
 - Panning (center adjustment)
 - Zooming
-- World-to-screen transformation
+- World-to-screen coordinate transformation
 
-It automatically fits the graph at startup using bounding box normalization.
+At startup, the camera automatically:
+
+- Computes graph bounding box
+- Fits the entire network into view
 
 **3. UI overlay**
 
@@ -255,10 +351,24 @@ A side panel provides:
 - Drone completion tracking
 - Keyboard controls legend
 
+## Controls
+
+The simulation can be paused to manually inspect each timestep:
+
+```
+SPACE → Play/Pause
+LEFT  → Previous step
+RIGHT → Next step
+Q     → Zoom in
+E     → Zoom out
+```
+
+Both renderers share the same simulation core but differ in how the state is presented.
+
 ## Technical Summary
 
-**Key design decisions: **
-- Separation of raw parsing vs domain model
+**Key design decisions:**
+- Separation of parsing and domain model
 - Strong validation layer before construction
 - Centralized cost model abstraction
 - Sequential scheduling with reservation propagation
@@ -270,33 +380,27 @@ A side panel provides:
 
 ## Resources
 
-Algorithms & theory
+### Graphs & algorithms
 
-https://www.geeksforgeeks.org/dsa/introduction-to-tree-data-structure/
+- https://www.geeksforgeeks.org/dsa/graph-data-structure-and-algorithms/
+- https://www.geeksforgeeks.org/dsa/a-search-algorithm/
+- https://www.geeksforgeeks.org/dsa/dijkstras-shortest-path-algorithm-greedy-algo-7/
 
-https://www.w3schools.com/dsa/dsa_theory_trees.php
+### Python
+- https://docs.python.org/3/library/dataclasses.html
 
-https://www.geeksforgeeks.org/dsa/graph-data-structure-and-algorithms/
+### Visualization
+- https://www.pygame.org/docs/
 
-https://www.geeksforgeeks.org/dsa/dijkstras-shortest-path-algorithm-greedy-algo-7/
-
-A* Search Algorithm:
-https://www.geeksforgeeks.org/dsa/a-search-algorithm/
-
-https://docs.python.org/3/library/dataclasses.html
-
-https://www.youtube.com/watch?v=4jyESQDrpls&list=LL&index=6&t=477s
-
-https://www.youtube.com/watch?v=UeZR3IzVbwM&t=875s&pp=ugMICgJmchABGAHKBRBjYnMgYWxnb3JpdGhtIGZy
-
-### Pygame documentation   
-https://www.pygame.org/docs/
+### Videos
+- https://www.youtube.com/watch?v=4jyESQDrpls
+- https://www.youtube.com/watch?v=UeZR3IzVbwM
 
 ### AI usage
 
-Artificial intelligence was used in the following parts of this project:
+Artificial intelligence was used to assist with:
 
-- Writing and refining documentation (README structure and clarity)
-- Generating and standardizing docstrings across modules (PEP 257 compliance)
-- Improving explanations of algorithm design (Space-Time A*, reservation system)
-- Assisting with refactoring suggestions for separation of concerns (rendering vs logic)
+- Documentation structure and clarity
+- Docstring standardization (PEP 257)
+- Explanation of Space-Time A* and reservation system
+- Refactoring suggestions (separation of concerns)
