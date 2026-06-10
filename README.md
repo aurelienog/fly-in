@@ -288,15 +288,15 @@ The terminal renderer provides a **step-by-step textual simulation trace**.
 
 Each timestep is printed as a single line, showing all drone movements at that moment.
 
-Each movement must follow the format: D<ID>-<zone>, or D<ID>-<connection>
+Each movement must follow the format: ```D<ID>-<zone>, or D<ID>-<connection>```
 
 **Output format:**
 
 By default, a simplified representation is used:
-
+```
 D<ID>-<hub>
 D<ID>-<connection>
-
+````
 Example:
 ```
 D0-waypoint1
