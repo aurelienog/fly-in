@@ -1,6 +1,6 @@
 from .file_loader import load_simulation
 from ..solver import SpaceTimeAStarPlanner, ReservationTable, Scheduler
-from ..visualization import TimelineExpander, render_terminal, Game
+from ..visualization import TimelineExpander, TerminalRenderer, Game
 
 
 def run_app(filename: str, render_mode: str | None) -> None:
@@ -14,8 +14,14 @@ def run_app(filename: str, render_mode: str | None) -> None:
         including loading, planning, scheduling, visualization, and
         terminal rendering.
     """
-    if render_mode and render_mode != "pygame":
-        raise ValueError(f"invalid option: {render_mode}")
+    render_options = {"pygame", "visual"}
+
+    if render_mode and render_mode not in render_options:
+        raise ValueError(
+            f"Invalid render mode: {render_mode!r}.\n"
+            f"Available render modes: {', '.join(sorted(render_options))}.\n"
+            f"Default: compact rendering (no value)."
+        )
 
     network, drones = load_simulation(filename)
 
@@ -29,8 +35,14 @@ def run_app(filename: str, render_mode: str | None) -> None:
         drone: expander.expand(path)
         for drone, path in solution.items()
     }
-    if render_mode:
-        game = Game(network, simulation)
-        game.run()
+
+    terminal_renderer = TerminalRenderer()
+
+    if render_mode == "visual":
+        terminal_renderer.has_colors = True
+        terminal_renderer.render_detailed(simulation)
+
+    elif render_mode == "pygame":
+        Game(network, simulation).run()
     else:
-        render_terminal(simulation)
+        terminal_renderer.render_compact(simulation)
