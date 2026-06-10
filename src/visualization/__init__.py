@@ -1,9 +1,9 @@
 from .colors import RenderColors
 from .timeline_expander import TimelineExpander
 from .state import HubState, ConnectionState, State
-from .terminal_renderer import render_terminal
 from .game import Game
+from .terminal_renderer import TerminalRenderer
 
-__all__ = ["RenderColors", "render_terminal", "Game",
+__all__ = ["RenderColors", "Game", "TerminalRenderer",
            "TimelineExpander",
            "State", "HubState", "ConnectionState"]

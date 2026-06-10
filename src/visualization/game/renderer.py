@@ -136,14 +136,14 @@ class Renderer:
             text = font.render(
                 hub.name,
                 True,
-                RenderColors.PYGAME[Color.BLACK],
+                RenderColors.PYGAME[Color.WHITE],
             )
 
             screen.blit(
                 text,
                 (
-                    pos[0] - 20,
-                    pos[1] - 40,
+                    pos[0] - 25,
+                    pos[1],
                 ),
             )
 
