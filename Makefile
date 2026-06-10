@@ -2,8 +2,8 @@ NAME = fly_in
 VENV = .venv
 PYTHON = $(VENV)/bin/python3
 PIP = $(VENV)/bin/pip
-#MAP = ./maps/easy/01_linear_path.txt
-MAP = ./maps/easy/02_simple_fork.txt
+MAP = ./maps/easy/01_linear_path.txt
+#MAP = ./maps/easy/02_simple_fork.txt
 #MAP = ./maps/easy/03_basic_capacity.txt
 #MAP = ./maps/medium/01_dead_end_trap.txt
 #MAP = ./maps/medium/02_circular_loop.txt
@@ -76,15 +76,7 @@ lint-strict:
 	$(VENV)/bin/mypy . --strict
 
 # --------------------------
-# BUILD
-# --------------------------
-
-build: install
-	$(PYTHON) -m pip install --upgrade build
-	$(PYTHON) -m build
-
-# --------------------------
 # PHONY
 # --------------------------
 
-.PHONY: all venv install run debug clean clean-venv lint lint-strict build
+.PHONY: all venv install run debug clean clean-venv lint lint-strict
