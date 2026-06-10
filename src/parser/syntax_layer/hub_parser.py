@@ -81,6 +81,9 @@ def parse_hub(
     if hub_type == "start_hub" and max_drones is None:
         max_drones = nb_drones
 
+    if hub_type == "end_hub" and max_drones is None:
+        max_drones = nb_drones
+
     if max_drones is None:
         max_drones = 1
 
