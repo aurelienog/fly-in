@@ -81,7 +81,7 @@ Provides a real-time visualization with:
 ## Instructions
 
 ### Requirements
-- Python 3.10+
+- python 3.10+
 - pygame
 - pytest
 
@@ -129,7 +129,7 @@ make lint         # Run flake8 + mypy
 make lint-strict  # Strict type checking
 ```
 
-## Algorithm & Implementation Strategy
+## Algorithm explanation
 
 ### 1. Parsing pipeline
 
@@ -308,8 +308,9 @@ D1-goal
 A more detailed and colored representation is printed with: ``` make run RENDER=visual``` or ```fly_in.py maps/sample.txt visual```
 
 Representation:
+```
 T<turn-number>: D<ID>-<zone> <occupation/capacity>, or D<ID>-<connection><occupation/capacity>
-
+```
 Example:
 ```
 T001: D0-waypoint1<1/1>
