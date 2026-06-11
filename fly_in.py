@@ -6,6 +6,13 @@ import sys
 
 
 def main() -> None:
+    """Run the application entry point.
+
+    Validate command-line arguments, determine the rendering mode,
+    execute the simulation, and handle parsing, configuration,
+    simulation, file system, and encoding errors by displaying
+    appropriate messages before terminating the program.
+    """
 
     if len(sys.argv) < 2:
         print(
